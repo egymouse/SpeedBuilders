@@ -1,0 +1,6 @@
+name: SpeedBuilders
+version: '${version}'
+
+main: org.egymouse.speedBuilders.SpeedBuilders
+api-version: '26.3'
+load: POSTWORLD
