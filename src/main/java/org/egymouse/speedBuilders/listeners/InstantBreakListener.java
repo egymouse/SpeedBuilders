@@ -1,11 +1,11 @@
-package org.egymouse.speedBuilders;
+package org.egymouse.speedBuilders.listeners;
 
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 
-public class MyListener implements Listener {
+public class InstantBreakListener implements Listener {
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
