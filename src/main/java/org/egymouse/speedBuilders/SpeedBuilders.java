@@ -3,9 +3,18 @@ package org.egymouse.speedBuilders;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
+import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.egymouse.speedBuilders.listeners.DoubleJumpListener;
 import org.egymouse.speedBuilders.listeners.InstantBreakListener;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 public final class SpeedBuilders extends JavaPlugin {
 
@@ -14,6 +23,28 @@ public final class SpeedBuilders extends JavaPlugin {
         // Plugin startup logic
 
         registerAllListeners();
+        World world = Bukkit.getWorld("world");
+        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+
+        BukkitScheduler scheduler = this.getServer().getScheduler();
+        scheduler.runTaskTimer(this, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                boolean onGround = DoubleJumpListener.isPlayerOnGroundRayTrace(player);
+                if (onGround) {
+                    // 着地时，重新允许飞行，并移出“空中”集合
+                    player.setAllowFlight(true);
+                } else {
+                    // 离地时，标记为“空中”（代表已经消耗了一次原版跳跃）
+                    // 但只有在玩家确实起跳后才标记，避免边缘掉落误判
+                    if (player.getVelocity().getY() > -0.2) {
+                        
+                    }
+                    else {
+                        player.setAllowFlight(false);
+                    }
+                }
+            }
+        }, 1, 1);
 
 
 //        getServer().getPluginManager().registerEvents(new InstantBreakListener(), this);
