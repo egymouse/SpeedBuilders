@@ -7,6 +7,9 @@ public final class SpeedBuilders extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
+
+
+        getServer().getPluginManager().registerEvents(new MyListener(), this);
     }
 
     @Override
