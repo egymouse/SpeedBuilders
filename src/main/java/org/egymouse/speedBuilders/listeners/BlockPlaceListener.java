@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.egymouse.speedBuilders.GameLoop;
 
 public class BlockPlaceListener implements Listener {
 
@@ -15,6 +16,11 @@ public class BlockPlaceListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         // 1. 仅对生存模式玩家生效
         if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+            return;
+        }
+
+        if (GameLoop.currentPhase != GameLoop.GamePhase.BUILD) {
+            event.setCancelled(true);
             return;
         }
 

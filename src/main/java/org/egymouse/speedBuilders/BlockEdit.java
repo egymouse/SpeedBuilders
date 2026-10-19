@@ -14,18 +14,25 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.structure.Mirror;
+import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.structure.Structure;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class BlockEdit {
 
-    public static List<String> allSchematicFileNames = getAllSchematicFileNames();
 
 
 
@@ -41,17 +48,30 @@ public class BlockEdit {
 
     }
 
-    public static List<String> getAllSchematicFileNames() {
-        File dir = getWorldEditDataFolder();
-        File schemsDir = new File(dir, "schematics/");
-        String[] names = schemsDir.list();   // 返回文件名数组，可能为 null
+    public static List<File> getAllSchematicFiles() {
+//        File dir = getWorldEditDataFolder();
+//        File schemsDir = new File(dir, "schematics/");
+//        String[] names = schemsDir.list();   // 返回文件名数组，可能为 null
+//
+//        if (names != null) {
+//            List<String> fileNames = new ArrayList<>(Arrays.asList(names));
+//            System.out.println(fileNames);
+//            return fileNames;
+//        }
+//        return null;
 
-        if (names != null) {
-            List<String> fileNames = new ArrayList<>(Arrays.asList(names));
-            System.out.println(fileNames);
-            return fileNames;
+        Path dir = Paths.get("plugins/buildings");
+        List<File> all_structures = new ArrayList<>();
+        try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir,"*.nbt")){
+            for(Path entry : stream){
+                if(Files.isRegularFile(entry)){
+                    all_structures.add(entry.toFile());
+                }
+            }
+        }catch (IOException e){
+            e.printStackTrace();
         }
-        return null;
+        return all_structures;
     }
 
     public static File getWorldEditDataFolder() {
@@ -77,7 +97,23 @@ public class BlockEdit {
 
 
 
+    public static void pasteStructure(Location location, Structure structure) {
+        location = GameLoop.offset(location, 0, -1, 0);
+        structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
+    }
     public static void pasteSchematic(Location location, File schematicFile) {
+        Structure structure;
+        try {
+            structure = Bukkit.getStructureManager().loadStructure(schematicFile);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
+
+        /*
         // 1. 检测文件格式并创建读取器
         ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
         if (format == null) {
@@ -114,5 +150,7 @@ public class BlockEdit {
         } catch (WorldEditException e) {
             throw new RuntimeException(e);
         }
+
+         */
     }
 }

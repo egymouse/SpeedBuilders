@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.Bisected;
+import org.egymouse.speedBuilders.GameLoop;
 
 public class AutoPickupListener implements Listener {
 
@@ -49,6 +50,12 @@ public class AutoPickupListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
         if (e.getPlayer().getGameMode() == GameMode.CREATIVE ) return;
+
+        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+            e.setCancelled(true);
+            return;
+        }
+
         Block block = e.getBlock();
         Material type = block.getType();
         BlockData data = block.getBlockData();
@@ -84,6 +91,10 @@ public class AutoPickupListener implements Listener {
             if (otherHalf.getBlockData() instanceof Door) {
                 otherHalf.setBlockData(Material.AIR.createBlockData(), false);
             }
+        }
+
+        if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {
+            return;
         }
         // 关键：方块是什么就生成什么，完全不参考玩家手中物品
         ItemStack drop = new ItemStack(type, 1);

@@ -11,7 +11,7 @@ public class TestCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         GameLoop.generateNewBuild();
-        BlockEdit.pasteSchematic(GameLoop.BUILD_LOCATION, GameLoop.currentBuildFileName);
+        BlockEdit.pasteSchematic(GameLoop.BUILD_LOCATION, GameLoop.currentBuildFile);
         return true;
     }
 }

@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.egymouse.speedBuilders.GameLoop;
 
 public class InstantBreakListener implements Listener {
 
@@ -14,6 +15,11 @@ public class InstantBreakListener implements Listener {
     public void onBlockDamage(BlockDamageEvent event) {
         // 1. 仅对生存模式玩家生效
         if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+            return;
+        }
+
+        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+            event.setCancelled(true);
             return;
         }
 

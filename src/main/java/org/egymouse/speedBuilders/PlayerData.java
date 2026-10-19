@@ -6,6 +6,24 @@ public class PlayerData {
     UUID uuid;
     int completionTicks = 0;
 
+    public boolean isAllCorrect() {
+        return allCorrect;
+    }
+
+    public void setAllCorrect(boolean allCorrect) {
+        this.allCorrect = allCorrect;
+    }
+
+    public int getCompletionTicks() {
+        return completionTicks;
+    }
+
+    public void setCompletionTicks(int completionTicks) {
+        this.completionTicks = completionTicks;
+    }
+
+    boolean allCorrect = false;
+
     public int getBlockRight() {
         return blockRight;
     }

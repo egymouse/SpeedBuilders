@@ -9,6 +9,8 @@ commands:
   test:
     description: test
     usage: /<command>
+  end:
+    description: 保存建筑
 
 depend: [ ProtocolLib , WorldEdit ]
 

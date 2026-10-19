@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.egymouse.speedBuilders.commands.EndCommand;
 import org.egymouse.speedBuilders.commands.TestCommand;
 import org.egymouse.speedBuilders.listeners.DoubleJumpListener;
 
@@ -30,9 +31,12 @@ public final class SpeedBuilders extends JavaPlugin {
 
         registerAllListeners();
         getCommand("test").setExecutor(new TestCommand());
+        getCommand("end").setExecutor(new EndCommand());
         World world = Bukkit.getWorld("world");
         world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+
+        ToolClass.Init();
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.runTaskTimer(this, () -> {

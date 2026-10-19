@@ -5,71 +5,87 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.structure.Mirror;
+import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.stringtemplate.v4.ST;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.structure.Structure;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class GameLoop {
     public static int timeLeft;
-    public static GamePhase currentPhase = GamePhase.DISPLAY;
-    public static Set<String> leftSchematicFileNames = new HashSet<>(BlockEdit.getAllSchematicFileNames());
+    public static GamePhase currentPhase = GamePhase.JUDGE;
+    public static Set<File> leftSchematicFile = null;
     public static HashMap<UUID, PlayerData> player_data = new HashMap<>();
     public static int DEFAULT_HEALTH = 3;
     public static int STEP = 20;
     public static String areanaString = "areana";
     public static World OVERWORLD = Bukkit.getWorld("world");
     public static int TO_CENTER = 3;
+    public static int currentRound = 0;
+    public static int timeForBuilding = 600;
 
 
     public static void start() {
+        ToolClass.playing = true;
+        leftSchematicFile = new HashSet<>(BlockEdit.getAllSchematicFiles());
+        for (int i = 0; i <= ToolClass.wait_player.size(); i++) {
+            BlockEdit.pasteSchematic(BUILD_LOCATION.clone().offset(STEP*i, 0, 0).toLocation(Bukkit.getWorld("world")), areanaString);
+
+
+
+            Structure l = Bukkit.getStructureManager().loadStructure(NamespacedKey.minecraft("labby"));
+            l.place(new Location(Bukkit.getWorld("world"),30*i,200,0),false, StructureRotation.NONE, Mirror.NONE,0,1f,new Random());
+        }
         int offset = 0;
-        for (Player player: Bukkit.getOnlinePlayers()) {
+        for (Player player: ToolClass.wait_player) {
             PlayerData playerData = new PlayerData(player.getUniqueId());
             playerData.setOffset(offset);
             playerData.setHealth(DEFAULT_HEALTH);
             player_data.put(player.getUniqueId(), playerData);
-        }
+            player.teleport(offset(BUILD_LOCATION, offset));
 
-        for (int i = 0; i <= offset; i++) {
-            BlockEdit.pasteSchematic(BUILD_LOCATION.clone().offset(STEP*i, 0, 0).toLocation(Bukkit.getWorld("world")), areanaString);
-
+            offset++;
         }
+        ToolClass.wait_player.clear();
+
+
         BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
         scheduler.runTaskLater(SpeedBuilders.getPlugin(), () -> {
-            test();
+            gameLoop();
         }, 100);
     }
 
     public static int totalBlockCount = 0;
 
-    public static void test() {
-        timeLeft = 100;
-        BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
-        scheduler.runTaskTimer(SpeedBuilders.getPlugin(), () -> {
-            timeLeft --;
-//            if (currentPhase == GamePhase.BUILD) {
-//                //tick t oc
-//            }
+    public static BukkitTask gameLoopTask;
 
+    public static void gameLoop() {
+        timeLeft = 0;
+        BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
+        gameLoopTask = scheduler.runTaskTimer(SpeedBuilders.getPlugin(), () -> {
+            timeLeft --;
             if (timeLeft <= 0) {
                 int currentPhaseOrdinal = currentPhase.ordinal();
                 currentPhaseOrdinal ++;
                 if (currentPhaseOrdinal >= GamePhase.values().length) {
                     currentPhaseOrdinal = 0;
                 }
+                currentPhase = GamePhase.values()[currentPhaseOrdinal];
 
                 if (currentPhase == GamePhase.DISPLAY) {
-                    generateNewBuild();
-                    BlockEdit.pasteSchematic(DISPLAY_LOCATION, currentBuildFileName);
-                    for (PlayerData playerData : player_data.values()) {
-                        int offset = playerData.getOffset();
-                        Location location = offset(BUILD_LOCATION, offset);
-                        BlockEdit.pasteSchematic(location, currentBuildFileName);
+                    currentRound ++;
+                    if (currentRound != 1) {
+                        timeForBuilding -= 40;
                     }
+                    generateNewBuild();
+                    BlockEdit.pasteStructure(DISPLAY_LOCATION, currentBuildStructure);
                     totalBlockCount = 0;
                     Inventory inventory = Bukkit.createInventory(null, 36);
                     int x = DISPLAY_LOCATION.getBlockX();
@@ -99,16 +115,24 @@ public class GameLoop {
                             }
                         }
                     }
-                    for (UUID uuid : player_data.keySet()) {
+
+
+                    for (PlayerData playerData : player_data.values()) {
+                        int offset = playerData.getOffset();
+                        UUID uuid = playerData.getUuid();
                         Player player = Bukkit.getPlayer(uuid);
                         if (player == null) continue;
+                        Location location = offset(BUILD_LOCATION, offset);
+                        player.teleport(location);
+                        player.setGameMode(GameMode.SURVIVAL);
+                        BlockEdit.pasteStructure(location, currentBuildStructure);
                         Inventory playerInventory = player.getInventory();
                         for (int i = 0; i <36; i++) {
                             ItemStack itemStack = inventory.getItem(i);
                             playerInventory.setItem(i, itemStack);
                         }
-
                     }
+
                 }
                 else if (currentPhase == GamePhase.BUILD) {
                     displayFill(Material.BEDROCK);
@@ -142,6 +166,8 @@ public class GameLoop {
                         if (player != null) {
                             player.setGameMode(GameMode.SPECTATOR);
                         }
+                        playerFill(buildLocation, Material.AIR);
+                        if (playerData.isAllCorrect()) continue;
                         int correctBlocks = 0;
                         int misplacedBlocks = 0;
                         {
@@ -168,7 +194,7 @@ public class GameLoop {
                             playerData.setBlockRight(correctBlocks);
                             playerData.setBlockWrong(misplacedBlocks);
                         }
-                        playerFill(buildLocation, Material.AIR);
+
                     }
                     displayFill(Material.AIR);
 //                    BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
@@ -178,6 +204,7 @@ public class GameLoop {
                         while (!playerDataList.isEmpty()) {
                             PlayerData bestPlayerData = null;
                             for (PlayerData playerData : playerDataList) {
+                                if (playerData.isAllCorrect()) continue;
                                 if (bestPlayerData == null) {
                                     bestPlayerData = playerData;
                                 }
@@ -192,6 +219,9 @@ public class GameLoop {
                             sortedPlayerDataList.add(bestPlayerData);
                         }
                         Bukkit.broadcastMessage(totalBlockCount + "");
+                        if (sortedPlayerDataList.isEmpty()) {
+
+                        }
                         for (int i = 0; i < sortedPlayerDataList.size(); i ++) {
                             PlayerData playerData = sortedPlayerDataList.get(i);
 
@@ -206,7 +236,15 @@ public class GameLoop {
                         if (lastPlayerData.getHealth() <= 0) {
                             player_data.remove(sortedPlayerDataList.getLast());
                             if (player_data.size() == 1) {
-                                this.
+                                for (UUID uuid : player_data.keySet()) {
+                                    Player player = Bukkit.getPlayer(uuid);
+                                    if (player != null)  {
+                                        String name = player.getName();
+                                        Bukkit.broadcastMessage(name + "赢了");
+                                    }
+                                }
+                                gameLoopTask.cancel();
+
                             }
                         }
 
@@ -220,12 +258,67 @@ public class GameLoop {
 
                 }
 
-                timeLeft = 100;
+                if (currentPhase != GamePhase.BUILD) {
+                    timeLeft = 100;
+                }
+                else {
+                    timeLeft = 100; //todo 逐渐减少
+                }
+
 
 
             }
+            else {
+                if (currentPhase == GamePhase.BUILD) {
+                    for (PlayerData playerData : player_data.values()) {
+                        if (playerData.isAllCorrect()) return;
+                        if (allCorrect(playerData)) {
+                            playerData.setAllCorrect(true);
+                            playerData.setCompletionTicks(100 - timeLeft);
+                            UUID uuid = playerData.getUuid();
+                            Player player = Bukkit.getPlayer(uuid);
+                            if (player != null) {
+                                player.setGameMode(GameMode.SPECTATOR);
+                            }
+                        }
+
+
+                    }
+                }
+            }
         }, 1, 1);
 
+    }
+
+
+    public static boolean allCorrect(PlayerData playerData) {
+        int offset = playerData.getOffset();
+        Location buildLocation = offset(BUILD_LOCATION, offset);
+        UUID uuid = playerData.getUuid();
+        Player player = Bukkit.getPlayer(uuid);
+        {
+            int x = buildLocation.getBlockX();
+            int y = buildLocation.getBlockY();
+            int z = buildLocation.getBlockZ();
+            for (int dy = 0; dy < 7; dy++) {
+                for (int dx = 0; dx < 7; dx++) {
+                    for (int dz = 0; dz < 7; dz++) {
+                        Location locationDisplay = offset(DISPLAY_LOCATION, dx, dy, dz);
+                        Block displayBlock = locationDisplay.getBlock();
+                        if (displayBlock.getType() == Material.AIR) continue;
+
+                        Location locationNew = new Location(OVERWORLD, x + dx, y + dy, z + dz);
+                        Block newBlock = locationNew.getBlock();
+
+
+                        if (!displayBlock.getBlockData().matches(newBlock.getBlockData())) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     public static void displayFill(Material material) {
@@ -250,7 +343,7 @@ public class GameLoop {
             for (int dy = 0; dy <= STEP; dy ++) {
                 for (int dz = 0; dz <= STEP; dz ++) {
                     Location locationNew = new Location(OVERWORLD, x, y+dy, z+dz);
-                    locationNew.getBlock().setType(Material.BEDROCK);
+                    locationNew.getBlock().setType(material);
                 }
             }
         }
@@ -261,7 +354,7 @@ public class GameLoop {
             for (int dy = 0; dy <= STEP; dy ++) {
                 for (int dz = 0; dz <= STEP; dz ++) {
                     Location locationNew = new Location(OVERWORLD, x, y+dy, z+dz);
-                    locationNew.getBlock().setType(Material.BEDROCK);
+                    locationNew.getBlock().setType(material);
                 }
             }
         }
@@ -275,21 +368,27 @@ public class GameLoop {
         return location.clone().offset(x, y, z).toLocation(location.getWorld());
     }
 
-    public static String currentBuildFileName;
+    public static File currentBuildFile;
+    public static Structure currentBuildStructure;
 
     public static void generateNewBuild() {
-        if (leftSchematicFileNames.isEmpty()) {
-            leftSchematicFileNames = new HashSet<>(BlockEdit.getAllSchematicFileNames());
+        if (leftSchematicFile.isEmpty()) {
+            leftSchematicFile = new HashSet<>(BlockEdit.getAllSchematicFiles());
         }
 
 
-        List<String> leftSchematicFileNamesList = new ArrayList<String>(leftSchematicFileNames);
-        int random = RandomUtils.random(0, leftSchematicFileNamesList.size() - 1);
-        String fileName = leftSchematicFileNamesList.get(random);
-        currentBuildFileName = fileName;
-        leftSchematicFileNames.remove(fileName);
+        List<File> leftSchematicFilesList = new ArrayList<File>(leftSchematicFile);
+        int random = RandomUtils.random(0, leftSchematicFilesList.size() - 1);
+        File file = leftSchematicFilesList.get(random);
+        currentBuildFile = file;
+        leftSchematicFile.remove(file);
 
-
+        try {
+            currentBuildStructure = Bukkit.getStructureManager().loadStructure(file);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void startBuilding() {
@@ -297,7 +396,8 @@ public class GameLoop {
     }
 
     public static Location BUILD_LOCATION = new Location(Bukkit.getWorld("world"), -3, -60, -3);
-    public static Location DISPLAY_LOCATION = new Location(Bukkit.getWorld("world"), -3, -60, 17);
+    public static Location DISPLAY_LOCATION = offset(BUILD_LOCATION, 0, 0, 20);
+    public static Location CREATE_LOCATION = offset(BUILD_LOCATION, 0, 0, -20);
 
 
 
