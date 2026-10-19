@@ -14,6 +14,8 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.plugin.Plugin;
@@ -48,7 +50,7 @@ public class BlockEdit {
 
     }
 
-    public static List<File> getAllSchematicFiles() {
+    public static List<File> getAllSchematicFiles(boolean isLLB) {
 //        File dir = getWorldEditDataFolder();
 //        File schemsDir = new File(dir, "schematics/");
 //        String[] names = schemsDir.list();   // 返回文件名数组，可能为 null
@@ -61,6 +63,9 @@ public class BlockEdit {
 //        return null;
 
         Path dir = Paths.get("plugins/buildings");
+        if (isLLB) {
+            dir = Paths.get("plugins/buildings_llb");
+        }
         List<File> all_structures = new ArrayList<>();
         try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir,"*.nbt")){
             for(Path entry : stream){
@@ -97,8 +102,23 @@ public class BlockEdit {
 
 
 
-    public static void pasteStructure(Location location, Structure structure) {
-        location = GameLoop.offset(location, 0, -1, 0);
+    public static void pasteStructure(Location location, Structure structure, boolean isLLB) {
+        if (!isLLB) {
+            location = GameLoop.offset(location, 0, -1, 0);
+        }
+        else {
+            int x = location.getBlockX();
+            int z = location.getBlockZ();
+            int y = location.getBlockY()-1;
+            for (int dx = 0; dx < 7; dx ++) {
+                for (int dz = 0; dz < 7; dz++) {
+                    Location locationNew = new Location(GameLoop.OVERWORLD, x+dx, y, z+dz);
+                    Block newBlock = locationNew.getBlock();
+                    newBlock.setType(Material.WHITE_CONCRETE);  //llb同款
+                }
+            }
+
+        }
         structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
     }
     public static void pasteSchematic(Location location, File schematicFile) {

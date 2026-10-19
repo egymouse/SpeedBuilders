@@ -5,8 +5,6 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.structure.Mirror;
-import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +20,8 @@ public class GameLoop {
     public static int timeLeft;
     public static int totalTime;
     public static GamePhase currentPhase = GamePhase.JUDGE;
-    public static Set<File> leftSchematicFile = null;
+    public static Set<File> leftStructureFile = null;
+    public static Set<File> leftLLBStructureFile = null;
     public static HashMap<UUID, PlayerData> player_data = new HashMap<>();
     public static int DEFAULT_HEALTH = 3;
     public static int STEP = 20;
@@ -38,7 +37,8 @@ public class GameLoop {
 
     public static void start() {
         ToolClass.playing = true;
-        leftSchematicFile = new HashSet<>(BlockEdit.getAllSchematicFiles());
+        leftStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(false));
+        leftLLBStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(true));
         for (int i = 0; i <= ToolClass.wait_player.size(); i++) {
             BlockEdit.pasteSchematic(BUILD_LOCATION.clone().offset(STEP*i, 0, 0).toLocation(Bukkit.getWorld("world")), areanaString);
 
@@ -101,7 +101,7 @@ public class GameLoop {
                         timeForBuilding -= 40;
                     }
                     generateNewBuild();
-                    BlockEdit.pasteStructure(DISPLAY_LOCATION, currentBuildStructure);
+                    BlockEdit.pasteStructure(DISPLAY_LOCATION, currentBuildStructure, currentIsLLB);
                     totalBlockCount = 0;
                     Inventory inventory = Bukkit.createInventory(null, 36);
                     int x = DISPLAY_LOCATION.getBlockX();
@@ -144,7 +144,7 @@ public class GameLoop {
                         Location location = offset(BUILD_LOCATION, offset);
                         player.teleport(location);
                         player.setGameMode(GameMode.SURVIVAL);
-                        BlockEdit.pasteStructure(location, currentBuildStructure);
+                        BlockEdit.pasteStructure(location, currentBuildStructure, currentIsLLB);
                         Inventory playerInventory = player.getInventory();
                         for (int i = 0; i <36; i++) {
                             ItemStack itemStack = inventory.getItem(i);
@@ -291,6 +291,7 @@ public class GameLoop {
                                             }
                                             else {
                                                 gameLoopTask.cancel();
+                                                ToolClass.playing = false;
                                             }
                                         }
                                     }
@@ -298,6 +299,7 @@ public class GameLoop {
                                 else if (player_data.size() == 0) {
                                     Bukkit.broadcastMessage("无人生还");
                                     gameLoopTask.cancel();
+                                    ToolClass.playing = false;
                                 }
                             }
                         }
@@ -447,18 +449,30 @@ public class GameLoop {
 
     public static File currentBuildFile;
     public static Structure currentBuildStructure;
+    public static boolean currentIsLLB;
 
     public static void generateNewBuild() {
-        if (leftSchematicFile.isEmpty()) {
-            leftSchematicFile = new HashSet<>(BlockEdit.getAllSchematicFiles());
+        if (leftStructureFile.isEmpty() && leftLLBStructureFile.isEmpty()) {
+            leftStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(false));
+            leftLLBStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(true));
         }
 
 
-        List<File> leftSchematicFilesList = new ArrayList<File>(leftSchematicFile);
-        int random = RandomUtils.random(0, leftSchematicFilesList.size() - 1);
-        File file = leftSchematicFilesList.get(random);
+        List<File> leftStructureFileList = new ArrayList<File>(leftStructureFile);
+        List<File> leftLLBStructureFileList = new ArrayList<File>(leftLLBStructureFile);
+        File file;
+        int random = RandomUtils.random(0, leftLLBStructureFileList.size() + leftStructureFileList.size() - 1);
+        if (random >= leftStructureFileList.size()) {
+            random -= leftStructureFileList.size();
+            currentIsLLB = true;
+            file = leftLLBStructureFileList.get(random);
+        }
+        else {
+            currentIsLLB = false;
+            file = leftStructureFileList.get(random);
+        }
         currentBuildFile = file;
-        leftSchematicFile.remove(file);
+        leftStructureFile.remove(file);
 
         try {
             currentBuildStructure = Bukkit.getStructureManager().loadStructure(file);
