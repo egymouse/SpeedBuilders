@@ -30,6 +30,7 @@ public class PlayerInteractEventListener implements Listener {
                             ToolClass.wait_player.add(e.getPlayer());
                             e.getPlayer().getInventory().clear();
                             e.getPlayer().sendMessage(ChatColor.GREEN + "你进入了游玩队列");
+                            Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
                             e.getPlayer().getInventory().setItem(1,ToolClass.cancel);
                             e.getPlayer().getInventory().setItem(0,ToolClass.start);
                         }else{
@@ -42,6 +43,7 @@ public class PlayerInteractEventListener implements Listener {
                             ToolClass.wait_player.remove(e.getPlayer());
                             e.getPlayer().getInventory().clear();
                             e.getPlayer().sendMessage(ChatColor.GREEN + "你退出了游玩队列");
+                            Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
                             e.getPlayer().getInventory().setItem(0,ToolClass.create);
                             e.getPlayer().getInventory().setItem(1,ToolClass.play);
                         }else{

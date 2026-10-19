@@ -4,10 +4,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.egymouse.speedBuilders.GameLoop;
+import org.egymouse.speedBuilders.PlayerData;
+
+import java.util.UUID;
 
 public class InstantBreakListener implements Listener {
 
@@ -26,7 +30,7 @@ public class InstantBreakListener implements Listener {
         // 1. 从事件中获取方块
         Block block = event.getBlock();
 
-        if (!isInBuildArea(block.getLocation())) {
+        if (!isInBuildArea(event.getPlayer(), block.getLocation())) {
             event.setCancelled(true);
             return;
         }
@@ -47,7 +51,12 @@ public class InstantBreakListener implements Listener {
 //        event.getBlock().setType(Material.AIR);
     }
 
-    public static boolean isInBuildArea(Location location) {
+    public static boolean isInBuildArea(Player player, Location location) {
+        UUID uuid = player.getUniqueId();
+        PlayerData playerData = GameLoop.player_data.get(uuid);
+        if (playerData == null) return false;
+        int offset = playerData.getOffset();
+        location = GameLoop.offset(location, -offset);  //反过来在指定位置 左加右减
         int x = location.getBlockX();
         int y = location.getBlockY();
         int z = location.getBlockZ();

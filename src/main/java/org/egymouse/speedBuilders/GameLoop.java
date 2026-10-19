@@ -25,7 +25,7 @@ public class GameLoop {
     public static HashMap<UUID, PlayerData> player_data = new HashMap<>();
     public static int DEFAULT_HEALTH = 3;
     public static int STEP = 20;
-    public static String areanaString = "areana";
+    public static String arenaString = "arena";
     public static World OVERWORLD = Bukkit.getWorld("world");
     public static int TO_CENTER = 3;
     public static int currentRound = 0;
@@ -33,6 +33,8 @@ public class GameLoop {
 
     public static boolean killAll = false;
     public static boolean slowestDies = false;
+    //todo 挖掘，板砖，掉方块，初始化arena
+    //tod 楼梯拐角
 
 
     public static void start() {
@@ -40,7 +42,7 @@ public class GameLoop {
         leftStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(false));
         leftLLBStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(true));
         for (int i = 0; i <= ToolClass.wait_player.size(); i++) {
-            BlockEdit.pasteSchematic(BUILD_LOCATION.clone().offset(STEP*i, 0, 0).toLocation(Bukkit.getWorld("world")), areanaString);
+            BlockEdit.pasteSchematic(offset(BUILD_LOCATION, i), arenaString);
 
 
 
@@ -166,7 +168,7 @@ public class GameLoop {
                                 for (int dx = 0; dx < 7; dx ++) {
                                     for (int dz = 0; dz < 7; dz ++) {
                                         Location locationNew = new Location(OVERWORLD, x+dx, y+dy, z+dz);
-                                        locationNew.getBlock().setType(Material.AIR);
+                                        locationNew.getBlock().setType(Material.AIR, false);
                                     }
                                 }
                             }
@@ -290,16 +292,14 @@ public class GameLoop {
                                                 Bukkit.broadcastMessage("但是你以为赢了就能走吗?");
                                             }
                                             else {
-                                                gameLoopTask.cancel();
-                                                ToolClass.playing = false;
+                                                end();
                                             }
                                         }
                                     }
                                 }
                                 else if (player_data.size() == 0) {
                                     Bukkit.broadcastMessage("无人生还");
-                                    gameLoopTask.cancel();
-                                    ToolClass.playing = false;
+                                    end();
                                 }
                             }
                         }
@@ -316,10 +316,16 @@ public class GameLoop {
                 }
 
                 if (currentPhase != GamePhase.BUILD) {
-                    timeLeft = 100;
+                    if (currentPhase == GamePhase.DISPLAY) {
+                        timeLeft = 15*20;
+                    }
+                    else {
+                        timeLeft = 100;
+                    }
+
                 }
                 else {
-                    timeLeft = 300; //todo 逐渐减少
+                    timeLeft = 1200 - currentRound*40 ; //todo 逐渐减少
                 }
                 totalTime = timeLeft;
 
@@ -369,6 +375,20 @@ public class GameLoop {
 
     }
 
+    public static void end() {
+        gameLoopTask.cancel();
+        ToolClass.playing = false;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getGameMode() == GameMode.SPECTATOR) {
+                player.teleport(BUILD_LOCATION);
+                player.setGameMode(GameMode.SURVIVAL);
+                player.getInventory().clear();
+                player.getInventory().setItem(0, ToolClass.create);
+                player.getInventory().setItem(1, ToolClass.play);
+            }
+        }
+    }
+
 
     public static boolean allCorrect(PlayerData playerData) {
         int offset = playerData.getOffset();
@@ -408,9 +428,10 @@ public class GameLoop {
             for (int dy = 0; dy <= STEP; dy ++) {
                 for (int dx = 0; dx <= STEP; dx ++) {
                     Location locationNew = new Location(OVERWORLD, x+dx, y+dy, z);
-                    locationNew.getBlock().setType(material);
+                    locationNew.getBlock().setType(material, false);
                 }
             }
+            playerFill(DISPLAY_LOCATION, material);
         }
     }
 
@@ -422,7 +443,7 @@ public class GameLoop {
             for (int dy = 0; dy <= STEP; dy ++) {
                 for (int dz = 0; dz <= STEP; dz ++) {
                     Location locationNew = new Location(OVERWORLD, x, y+dy, z+dz);
-                    locationNew.getBlock().setType(material);
+                    locationNew.getBlock().setType(material, false);
                 }
             }
         }
@@ -433,7 +454,7 @@ public class GameLoop {
             for (int dy = 0; dy <= STEP; dy ++) {
                 for (int dz = 0; dz <= STEP; dz ++) {
                     Location locationNew = new Location(OVERWORLD, x, y+dy, z+dz);
-                    locationNew.getBlock().setType(material);
+                    locationNew.getBlock().setType(material, false);
                 }
             }
         }

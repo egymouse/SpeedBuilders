@@ -27,7 +27,7 @@ public class BlockPlaceListener implements Listener {
         // 1. 从事件中获取方块
         Block block = event.getBlock();
 
-        if (!InstantBreakListener.isInBuildArea(block.getLocation())) {
+        if (!InstantBreakListener.isInBuildArea(event.getPlayer(), block.getLocation())) {
             event.setCancelled(true);
             return;
         }
