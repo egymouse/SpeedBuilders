@@ -6,6 +6,16 @@ public class PlayerData {
     UUID uuid;
     int completionTicks = 0;
 
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    String playerName;
+
     public boolean isAllCorrect() {
         return allCorrect;
     }

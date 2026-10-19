@@ -41,7 +41,7 @@ public final class SpeedBuilders extends JavaPlugin {
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.runTaskTimer(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player.getGameMode() == GameMode.CREATIVE) return;
+                if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
                 boolean onGround = DoubleJumpListener.isPlayerOnGroundRayTrace(player);
                 if (onGround) {
                     // 着地时，重新允许飞行，并移出“空中”集合

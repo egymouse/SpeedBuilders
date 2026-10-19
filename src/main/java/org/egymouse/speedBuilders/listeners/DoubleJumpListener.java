@@ -98,7 +98,7 @@ public class DoubleJumpListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onToggleFlight(PlayerToggleFlightEvent event) {  //todo 修复它总是有点卡卡的 因为客户端以为自己能飞
         Player player = event.getPlayer();
-        if (player.getGameMode() == GameMode.CREATIVE) return;
+        if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
 
         // 核心：立即取消飞行切换
         event.setCancelled(true);

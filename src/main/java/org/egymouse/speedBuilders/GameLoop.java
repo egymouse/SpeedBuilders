@@ -20,6 +20,7 @@ import java.util.*;
 
 public class GameLoop {
     public static int timeLeft;
+    public static int totalTime;
     public static GamePhase currentPhase = GamePhase.JUDGE;
     public static Set<File> leftSchematicFile = null;
     public static HashMap<UUID, PlayerData> player_data = new HashMap<>();
@@ -31,6 +32,9 @@ public class GameLoop {
     public static int currentRound = 0;
     public static int timeForBuilding = 600;
 
+    public static boolean killAll = false;
+    public static boolean slowestDies = false;
+
 
     public static void start() {
         ToolClass.playing = true;
@@ -40,16 +44,19 @@ public class GameLoop {
 
 
 
-            Structure l = Bukkit.getStructureManager().loadStructure(NamespacedKey.minecraft("labby"));
-            l.place(new Location(Bukkit.getWorld("world"),30*i,200,0),false, StructureRotation.NONE, Mirror.NONE,0,1f,new Random());
+//            Structure l = Bukkit.getStructureManager().loadStructure(NamespacedKey.minecraft("labby"));
+//            l.place(new Location(Bukkit.getWorld("world"),30*i,200,0),false, StructureRotation.NONE, Mirror.NONE,0,1f,new Random());
         }
         int offset = 0;
         for (Player player: ToolClass.wait_player) {
             PlayerData playerData = new PlayerData(player.getUniqueId());
             playerData.setOffset(offset);
             playerData.setHealth(DEFAULT_HEALTH);
+            playerData.setPlayerName(player.getName());
             player_data.put(player.getUniqueId(), playerData);
             player.teleport(offset(BUILD_LOCATION, offset));
+            player.setGameMode(GameMode.SURVIVAL);
+            Bukkit.broadcastMessage(player.getName() + "进入");
 
             offset++;
         }
@@ -67,17 +74,26 @@ public class GameLoop {
     public static BukkitTask gameLoopTask;
 
     public static void gameLoop() {
-        timeLeft = 0;
+        totalTime = 100;
+        timeLeft = 1;
         BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
         gameLoopTask = scheduler.runTaskTimer(SpeedBuilders.getPlugin(), () -> {
             timeLeft --;
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setLevel(( timeLeft-1) / 20 +1);
+                if (timeLeft > 0) {
+                    player.setExp((float) timeLeft / totalTime);
+                }
+            }
             if (timeLeft <= 0) {
+
                 int currentPhaseOrdinal = currentPhase.ordinal();
                 currentPhaseOrdinal ++;
                 if (currentPhaseOrdinal >= GamePhase.values().length) {
                     currentPhaseOrdinal = 0;
                 }
                 currentPhase = GamePhase.values()[currentPhaseOrdinal];
+                Bukkit.broadcastMessage("时间到了，现在阶段" + currentPhase.name());
 
                 if (currentPhase == GamePhase.DISPLAY) {
                     currentRound ++;
@@ -118,6 +134,9 @@ public class GameLoop {
 
 
                     for (PlayerData playerData : player_data.values()) {
+                        playerData.setAllCorrect(false);
+
+
                         int offset = playerData.getOffset();
                         UUID uuid = playerData.getUuid();
                         Player player = Bukkit.getPlayer(uuid);
@@ -198,13 +217,31 @@ public class GameLoop {
                     }
                     displayFill(Material.AIR);
 //                    BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
-                    List<PlayerData> sortedPlayerDataList = new ArrayList<>();
+
                     scheduler.runTaskLater(SpeedBuilders.getPlugin(), () -> {
-                        Collection<PlayerData> playerDataList = player_data.values();
+                        List<PlayerData> playerDataList = new ArrayList<PlayerData>(player_data.values());  //修复了内存引用直接把Playerdata删除的Bug
+                        List<PlayerData> sortedPlayerDataList = new ArrayList<>();
+                        Bukkit.broadcastMessage(totalBlockCount + "总方块数");
+
+
+                        HashSet<PlayerData> allCorrectPlayerData = new HashSet<>();
+                        for (PlayerData playerData : playerDataList) {
+                            if (playerData.isAllCorrect()) {
+                                Bukkit.broadcastMessage(playerData.getPlayerName() + ":全对" + " 生命:" + playerData.getHealth());
+                                allCorrectPlayerData.add(playerData);
+
+                            }
+                        }
+
+                        for (PlayerData playerData : allCorrectPlayerData) {
+                            playerDataList.remove(playerData);
+                        }
+
+
                         while (!playerDataList.isEmpty()) {
                             PlayerData bestPlayerData = null;
                             for (PlayerData playerData : playerDataList) {
-                                if (playerData.isAllCorrect()) continue;
+
                                 if (bestPlayerData == null) {
                                     bestPlayerData = playerData;
                                 }
@@ -215,38 +252,56 @@ public class GameLoop {
                                 }
 
                             }
-                            playerDataList.remove(bestPlayerData);
-                            sortedPlayerDataList.add(bestPlayerData);
+                            if (bestPlayerData != null) {
+                                sortedPlayerDataList.add(bestPlayerData);
+                                playerDataList.remove(bestPlayerData);
+                            }
                         }
-                        Bukkit.broadcastMessage(totalBlockCount + "");
-                        if (sortedPlayerDataList.isEmpty()) {
 
-                        }
                         for (int i = 0; i < sortedPlayerDataList.size(); i ++) {
                             PlayerData playerData = sortedPlayerDataList.get(i);
 
                             UUID uuid = playerData.getUuid();
                             Player player = Bukkit.getPlayer(uuid);
                             if (player != null) {
-                                Bukkit.broadcastMessage(player.getName() + ":" + playerData.getBlockRight());
+                                Bukkit.broadcastMessage(player.getName() + ":" + playerData.getBlockRight() + "对的方块数" + " 生命:" + playerData.getHealth());
                             }
                         }
-                        PlayerData lastPlayerData = sortedPlayerDataList.getLast();
-                        lastPlayerData.setHealth(lastPlayerData.getHealth()-1);
-                        if (lastPlayerData.getHealth() <= 0) {
-                            player_data.remove(sortedPlayerDataList.getLast());
-                            if (player_data.size() == 1) {
-                                for (UUID uuid : player_data.keySet()) {
-                                    Player player = Bukkit.getPlayer(uuid);
-                                    if (player != null)  {
-                                        String name = player.getName();
-                                        Bukkit.broadcastMessage(name + "赢了");
+                        if (sortedPlayerDataList.isEmpty()) {
+                            Bukkit.broadcastMessage("很棒嘛 是平安夜");
+                        }
+                        else {
+
+                            PlayerData lastPlayerData = sortedPlayerDataList.getLast();
+                            lastPlayerData.setHealth(lastPlayerData.getHealth()-1);
+                            Bukkit.broadcastMessage(lastPlayerData.getPlayerName() + "的生命变成了" + lastPlayerData.getHealth());
+
+                            if (lastPlayerData.getHealth() <= 0) {
+                                Bukkit.broadcastMessage(lastPlayerData.getPlayerName() + "飘零了");
+                                player_data.remove(lastPlayerData.getUuid());
+                                Bukkit.broadcastMessage(player_data.size() + " remain");
+                                if (player_data.size() == 1) {
+                                    for (UUID uuid : player_data.keySet()) {
+                                        Player player = Bukkit.getPlayer(uuid);
+                                        if (player != null)  {
+                                            String name = player.getName();
+                                            Bukkit.broadcastMessage(name + "赢了");
+                                            if (killAll) {
+                                                Bukkit.broadcastMessage("但是你以为赢了就能走吗?");
+                                            }
+                                            else {
+                                                gameLoopTask.cancel();
+                                            }
+                                        }
                                     }
                                 }
-                                gameLoopTask.cancel();
-
+                                else if (player_data.size() == 0) {
+                                    Bukkit.broadcastMessage("无人生还");
+                                    gameLoopTask.cancel();
+                                }
                             }
                         }
+
 
 
 
@@ -262,27 +317,49 @@ public class GameLoop {
                     timeLeft = 100;
                 }
                 else {
-                    timeLeft = 100; //todo 逐渐减少
+                    timeLeft = 300; //todo 逐渐减少
                 }
+                totalTime = timeLeft;
 
 
 
             }
             else {
                 if (currentPhase == GamePhase.BUILD) {
+                    boolean existSomeoneUnfinished = false;
+                    int unfinishedCount = 0;
+                    PlayerData slowestData = null;
                     for (PlayerData playerData : player_data.values()) {
-                        if (playerData.isAllCorrect()) return;
+                        if (playerData.isAllCorrect()) continue;
                         if (allCorrect(playerData)) {
                             playerData.setAllCorrect(true);
-                            playerData.setCompletionTicks(100 - timeLeft);
+                            playerData.setCompletionTicks(totalTime - timeLeft);
+                            Bukkit.broadcastMessage(playerData.getPlayerName() + " " + (float) playerData.getCompletionTicks() / 20);
                             UUID uuid = playerData.getUuid();
                             Player player = Bukkit.getPlayer(uuid);
                             if (player != null) {
                                 player.setGameMode(GameMode.SPECTATOR);
                             }
                         }
+                        else {
+                            existSomeoneUnfinished = true;
+                            unfinishedCount ++;
+                            slowestData = playerData;
+                        }
 
 
+                    }
+                    if (!existSomeoneUnfinished) {
+                        timeLeft = 1;
+                        Bukkit.broadcastMessage("全部完成");
+                    }
+                    else {
+                        if (slowestDies && !killAll) {
+                            if (unfinishedCount == 1) {
+                                Bukkit.broadcastMessage(slowestData.getPlayerName() + "太慢了");
+                                Bukkit.broadcastMessage("其实插件有bug，1tick内你能完成你就能活下来");
+                            }
+                        }
                     }
                 }
             }

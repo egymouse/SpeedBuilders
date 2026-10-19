@@ -19,7 +19,7 @@ public class PlayerInteractEventListener implements Listener {
         @EventHandler
         public void run(PlayerInteractEvent e){
             Player player = e.getPlayer();
-            if((e.getAction() == Action.RIGHT_CLICK_AIR) && (e.getHand() != EquipmentSlot.OFF_HAND)){
+            if((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) && (e.getHand() != EquipmentSlot.OFF_HAND)){
                 if(e.getItem()!=null){
                     if(e.getItem().getType() == Material.MAGMA_CREAM){
                         if(ToolClass.playing){
@@ -37,31 +37,32 @@ public class PlayerInteractEventListener implements Listener {
                         }
 
                     }
+                    else if(e.getItem().getType() == Material.STICK){
+                        if(ToolClass.wait_player.contains(e.getPlayer())){
+                            ToolClass.wait_player.remove(e.getPlayer());
+                            e.getPlayer().getInventory().clear();
+                            e.getPlayer().sendMessage(ChatColor.GREEN + "你退出了游玩队列");
+                            e.getPlayer().getInventory().setItem(0,ToolClass.create);
+                            e.getPlayer().getInventory().setItem(1,ToolClass.play);
+                        }else{
+                            e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
+                        }
+
+                    }
+                    else if(e.getItem().getType() == Material.EMERALD){
+                        if(ToolClass.wait_player.contains(e.getPlayer())){
+                            e.getPlayer().getInventory().clear();
+                            Bukkit.broadcastMessage(player.getName() + "开始了游戏");
+                            GameLoop.start();
+                        }else{
+                            e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
+                        }
+
+                    }
 
                 }
             }
-            else if(e.getItem().getType() == Material.STICK){
-                if(ToolClass.wait_player.contains(e.getPlayer())){
-                    ToolClass.wait_player.remove(e.getPlayer());
-                    e.getPlayer().getInventory().clear();
-                    e.getPlayer().sendMessage(ChatColor.GREEN + "你退出了游玩队列");
-                    e.getPlayer().getInventory().setItem(0,ToolClass.create);
-                    e.getPlayer().getInventory().setItem(1,ToolClass.play);
-                }else{
-                    e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
-                }
 
-            }
-            else if(e.getItem().getType() == Material.GREEN_CONCRETE){
-                if(ToolClass.wait_player.contains(e.getPlayer())){
-                    e.getPlayer().getInventory().clear();
-                    Bukkit.broadcastMessage(player.getName() + "开始了游戏");
-                    GameLoop.start();
-                }else{
-                    e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
-                }
-
-            }
 
 
         }

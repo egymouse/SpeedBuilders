@@ -17,7 +17,7 @@ import java.util.Set;
 public class ToolClass {
     public static ItemStack create = new ItemStack(Material.SLIME_BALL);
     public static ItemStack play = new ItemStack(Material.MAGMA_CREAM);
-    public static ItemStack start = new ItemStack(Material.GREEN_CONCRETE);
+    public static ItemStack start = new ItemStack(Material.EMERALD);
     public static ItemStack cancel = new ItemStack(Material.STICK);
 
     public static Structure create_structure = null;

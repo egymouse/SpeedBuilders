@@ -102,18 +102,17 @@ public class BlockEdit {
         structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
     }
     public static void pasteSchematic(Location location, File schematicFile) {
-        Structure structure;
-        try {
-            structure = Bukkit.getStructureManager().loadStructure(schematicFile);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        Structure structure;
+//        try {
+//            structure = Bukkit.getStructureManager().loadStructure(schematicFile);
+//        }
+//        catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//
+//        structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
 
-
-        structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
-
-        /*
         // 1. 检测文件格式并创建读取器
         ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
         if (format == null) {
@@ -151,6 +150,6 @@ public class BlockEdit {
             throw new RuntimeException(e);
         }
 
-         */
+
     }
 }
