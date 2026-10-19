@@ -1,5 +1,6 @@
 package org.egymouse.speedBuilders.listeners;
 
+import org.bukkit.GameMode;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
@@ -47,6 +48,7 @@ public class AutoPickupListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
+        if (e.getPlayer().getGameMode() == GameMode.CREATIVE ) return;
         Block block = e.getBlock();
         Material type = block.getType();
         BlockData data = block.getBlockData();

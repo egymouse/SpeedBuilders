@@ -5,6 +5,10 @@ main: org.egymouse.speedBuilders.SpeedBuilders
 api-version: '1.21'
 load: POSTWORLD
 
+commands:
+  test:
+    description: test
+    usage: /<command>
 
-depend: [ ProtocolLib ]
+depend: [ ProtocolLib , WorldEdit ]
 

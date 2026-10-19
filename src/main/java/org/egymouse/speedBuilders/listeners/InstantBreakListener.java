@@ -1,6 +1,7 @@
 package org.egymouse.speedBuilders.listeners;
 
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -19,6 +20,11 @@ public class InstantBreakListener implements Listener {
         // 1. 从事件中获取方块
         Block block = event.getBlock();
 
+        if (!isInBuildArea(block.getLocation())) {
+            event.setCancelled(true);
+            return;
+        }
+
         // 2. 获取方块的材质 (Material)
         Material material = block.getType();
 
@@ -26,9 +32,20 @@ public class InstantBreakListener implements Listener {
         // 注意：此方法需要较新版本的 Spigot/Paper API (1.20.5+)
         float hardness = material.getHardness();
 
-//        if (hardness == 0) return;
+        if (hardness == 0) return;
 
         // 4. 核心：设置为瞬间破坏
         event.setInstaBreak(true);  //todo 修复秒破无挖掘延迟的bug
+
+
+//        event.getBlock().setType(Material.AIR);
+    }
+
+    public static boolean isInBuildArea(Location location) {
+        int x = location.getBlockX();
+        int y = location.getBlockY();
+        int z = location.getBlockZ();
+        if (x >= -3 && x <= 3 && y >= -60 && y <= -54 && z >= -3 && z <= 3) return true;
+        return false;
     }
 }
