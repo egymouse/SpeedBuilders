@@ -11,12 +11,14 @@ import java.util.List;
 public class BlockDropItemListener implements Listener {
     @EventHandler
     public void onBlockDrop(BlockDropItemEvent event) {
+//        event.setCancelled(true);
         List<Item> items = event.getItems();
-        event.getItems().clear();
         if (!items.isEmpty()) {
-            Bukkit.broadcastMessage(items.toString() + " debug_1");
+//            Bukkit.broadcastMessage(items.getFirst().getItemStack().getType().name() + " debug_21");
             //todo 解决神秘方块掉落物品问题
         }
+//        event.getItems().clear();
+
 
 //        // 例如：检查被破坏的方块是否是钻石矿石
 //        if (event.getBlockState().getType() == Material.DIAMOND_ORE) {

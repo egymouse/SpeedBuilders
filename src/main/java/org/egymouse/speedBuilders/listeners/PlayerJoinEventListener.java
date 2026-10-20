@@ -19,7 +19,10 @@ public class PlayerJoinEventListener implements Listener {
             return;
         }
         if (GameLoop.player_data.containsKey(p.getUniqueId())) return;
-        p.teleport(GameLoop.offset(GameLoop.BUILD_LOCATION, 0, 0, -1));
+        p.teleport(
+                GameLoop.toTeleportLocation(
+                        GameLoop.offset(
+                                GameLoop.BUILD_LOCATION, 0, 0, -1)));
         p.getInventory().clear();
         p.getInventory().setItem(0, ToolClass.create);
         p.getInventory().setItem(1, ToolClass.play);

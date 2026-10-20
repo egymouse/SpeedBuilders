@@ -102,7 +102,10 @@ public class BlockEdit {
 
 
 
+    public static boolean noBlockPhysics = false;
     public static void pasteStructure(Location location, Structure structure, boolean isLLB) {
+//        GameLoop.fillAir(location);
+        noBlockPhysics = true;
         if (!isLLB) {
             location = GameLoop.offset(location, 0, -1, 0);
         }
@@ -120,6 +123,7 @@ public class BlockEdit {
 
         }
         structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
+        noBlockPhysics = false;
     }
     public static void pasteSchematic(Location location, File schematicFile) {
 //        Structure structure;

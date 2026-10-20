@@ -19,7 +19,7 @@ public class PlayerInteractEventListener implements Listener {
         @EventHandler
         public void run(PlayerInteractEvent e){
             Player player = e.getPlayer();
-            if((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) && (e.getHand() != EquipmentSlot.OFF_HAND)){
+            if((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) && (e.getHand() == EquipmentSlot.HAND)){
                 if(e.getItem()!=null){
                     if(e.getItem().getType() == Material.MAGMA_CREAM){
                         if(ToolClass.playing){
@@ -33,6 +33,8 @@ public class PlayerInteractEventListener implements Listener {
                             Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
                             e.getPlayer().getInventory().setItem(1,ToolClass.cancel);
                             e.getPlayer().getInventory().setItem(0,ToolClass.start);
+                            Bukkit.broadcastMessage(Bukkit.getCurrentTick() + "");
+                            Bukkit.broadcastMessage(e.toString());
                         }else{
                             e.getPlayer().sendMessage(ChatColor.RED + "你已经在游玩队列当中");
                         }
@@ -46,6 +48,8 @@ public class PlayerInteractEventListener implements Listener {
                             Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
                             e.getPlayer().getInventory().setItem(0,ToolClass.create);
                             e.getPlayer().getInventory().setItem(1,ToolClass.play);
+                            Bukkit.broadcastMessage(Bukkit.getCurrentTick() + "");
+                            Bukkit.broadcastMessage(e.toString());
                         }else{
                             e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
                         }

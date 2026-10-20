@@ -26,7 +26,8 @@ public final class SpeedBuilders extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        //todo 挖掘延迟， 初始化玩家arena 玩家下线逻辑
+        //todo 挖掘延迟， 初始化玩家arena 玩家下线逻辑 破坏下面花草会导致花草不给回玩家  右键多次右键 按钮掉落又出现了 办公室给予的物品出错解决 玩家死亡移除平台
+
 
 
         // Plugin startup logic
@@ -45,7 +46,8 @@ public final class SpeedBuilders extends JavaPlugin {
         scheduler.runTaskTimer(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
-                boolean onGround = DoubleJumpListener.isPlayerOnGroundRayTrace(player);
+                boolean onGround = DoubleJumpListener.isPlayerOnGroundRayTrace(player);  //站在栅栏上就爆炸了
+                onGround = player.isOnGround();
                 if (onGround) {
                     // 着地时，重新允许飞行，并移出“空中”集合
                     player.setAllowFlight(true);

@@ -17,6 +17,13 @@ public class InstantBreakListener implements Listener {
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
+
+
+
+//        event.setInstaBreak(true);
+//        if (true) return;
+
+
         // 1. 仅对生存模式玩家生效
         if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) {
             return;

@@ -5,6 +5,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.ajls.lib.utils.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Stairs;
@@ -59,7 +60,10 @@ public class GameLoop {
             playerData.setHealth(DEFAULT_HEALTH);
             playerData.setPlayerName(player.getName());
             player_data.put(player.getUniqueId(), playerData);
-            player.teleport(offset(BUILD_LOCATION, offset));
+            player.teleport(
+                    toTeleportLocation(
+                            offset(
+                                    offset(BUILD_LOCATION, offset), 0, 0, -1)));
             player.setGameMode(GameMode.SURVIVAL);
             Bukkit.broadcastMessage(player.getName() + "进入");
 
@@ -71,7 +75,7 @@ public class GameLoop {
         BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
         scheduler.runTaskLater(SpeedBuilders.getPlugin(), () -> {
             gameLoop();
-        }, 100);
+        }, 60);
     }
 
     public static int totalBlockCount = 0;
@@ -87,7 +91,7 @@ public class GameLoop {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 double remain = (double) timeLeft / 20.0;
 //                String timeStr = String.format(java.util.Locale.ROOT, "%.1f", remain);
-                String timeStr = String.format(java.util.Locale.ROOT, "%05.1f", remain);
+                String timeStr = String.format(java.util.Locale.ROOT, "%05.2f", remain);
                 String phaseString = "复原";
                 if (currentPhase == GamePhase.DISPLAY) {
                     phaseString = "观察";
@@ -160,7 +164,7 @@ public class GameLoop {
                         Player player = Bukkit.getPlayer(uuid);
                         if (player == null) continue;
                         Location location = offset(BUILD_LOCATION, offset);
-                        player.teleport(location);
+                        player.teleport(toTeleportLocation(offset(location, 0, 0, -1)));
                         player.setGameMode(GameMode.SURVIVAL);
                         BlockEdit.pasteStructure(location, currentBuildStructure, currentIsLLB);
                         Inventory playerInventory = player.getInventory();
@@ -176,19 +180,7 @@ public class GameLoop {
                     for (PlayerData playerData : player_data.values()) {
                         int offset = playerData.getOffset();
                         Location buildLocation = offset(BUILD_LOCATION, offset);
-                        {
-                            int x = buildLocation.getBlockX();
-                            int y = buildLocation.getBlockY();
-                            int z = buildLocation.getBlockZ();
-                            for (int dy = 0; dy < 7; dy ++) {
-                                for (int dx = 0; dx < 7; dx ++) {
-                                    for (int dz = 0; dz < 7; dz ++) {
-                                        Location locationNew = new Location(OVERWORLD, x+dx, y+dy, z+dz);
-                                        locationNew.getBlock().setType(Material.AIR, false);
-                                    }
-                                }
-                            }
-                        }
+                        fillAir(buildLocation);
                         playerFill(buildLocation, Material.BEDROCK);
 
 
@@ -392,6 +384,30 @@ public class GameLoop {
 
     }
 
+    public static void fillAir(Location buildLocation) {
+        {
+            int x = buildLocation.getBlockX();
+            int y = buildLocation.getBlockY();
+            int z = buildLocation.getBlockZ();
+            for (int dy = 0; dy < 7; dy ++) {
+                for (int dx = 0; dx < 7; dx ++) {
+                    for (int dz = 0; dz < 7; dz ++) {
+//                                        Location locationNew = new Location(OVERWORLD, x+dx, y+dy, z+dz);
+//                                        locationNew.getBlock().setType(Material.AIR, false);
+
+                        Block block = new Location(OVERWORLD, x + dx, y + dy, z + dz).getBlock();
+//                                        BlockState state = block.getState();
+//                                        state.setType(Material.AIR);
+//                                        // 第二个参数 false 表示不应用物理/方块更新
+//                                        state.update(true, false);
+//
+                        block.setBlockData(Bukkit.createBlockData(Material.AIR),false);
+                    }
+                }
+            }
+        }
+    }
+
     public static void end() {
         gameLoopTask.cancel();
         ToolClass.playing = false;
@@ -493,11 +509,27 @@ public class GameLoop {
     }
 
     public static Location offset(Location location, int offset) {
-        return location.clone().offset(STEP*offset, 0, 0).toLocation(location.getWorld());
+//        return location.clone().offset(STEP*offset, 0, 0).toLocation(location.getWorld());
+
+// 在 X, Y, Z 轴上分别偏移 3, 5, -2 个方块
+        return offset(location, STEP*offset, 0, 0);
+
     }
 
     public static Location offset(Location location, int x, int y, int z) {
-        return location.clone().offset(x, y, z).toLocation(location.getWorld());
+//        return location.clone().offset(x, y, z).toLocation(location.getWorld());
+
+        return location.clone().add(x, y, z);
+    }
+
+    public static Location offset(Location location, double x, double y, double z) {
+//        return location.clone().offset(x, y, z).toLocation(location.getWorld());
+
+        return location.clone().add(x, y, z);
+    }
+
+    public static Location toTeleportLocation(Location location) {
+        return offset(location, 0.5, 0, 0.5);
     }
 
     public static File currentBuildFile;

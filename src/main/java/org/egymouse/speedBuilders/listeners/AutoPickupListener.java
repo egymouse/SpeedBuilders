@@ -1,5 +1,6 @@
 package org.egymouse.speedBuilders.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -50,19 +51,35 @@ public class AutoPickupListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
-        if (e.getPlayer().getGameMode() == GameMode.CREATIVE ) return;
-
-        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+//        if (true) return;
+        if (e.getPlayer() == null) {
             e.setCancelled(true);
+            Bukkit.broadcastMessage("没人的破坏方块");
             return;
         }
+        if (e.getPlayer().getGameMode() == GameMode.CREATIVE ) return;
+
+//        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+//            e.setCancelled(true);
+//            return;
+//        }
 
         Block block = e.getBlock();
         Material type = block.getType();
         BlockData data = block.getBlockData();
+//        if (type.name().endsWith("TORCH")) {
+//            Bukkit.broadcastMessage("torch");
+//        }
 
-        // 取消原版掉落，避免再生成默认掉落物
+//        // 取消原版掉落，避免再生成默认掉落物
+//        if (type == Material.SNOW_BLOCK) {
+//            e.setDropItems(false);
+//            Bukkit.broadcastMessage("取消凋落物");
+//        }
+
         e.setDropItems(false);
+
+
 
         // 不是物品的方块无法“掉自身”，直接不掉
         if (type.isAir() || !type.isItem()) {
