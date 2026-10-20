@@ -1,10 +1,13 @@
 package org.egymouse.speedBuilders;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.ajls.lib.utils.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -82,8 +85,21 @@ public class GameLoop {
         gameLoopTask = scheduler.runTaskTimer(SpeedBuilders.getPlugin(), () -> {
             timeLeft --;
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.setLevel(( timeLeft-1) / 20 +1);
+                double remain = (double) timeLeft / 20.0;
+//                String timeStr = String.format(java.util.Locale.ROOT, "%.1f", remain);
+                String timeStr = String.format(java.util.Locale.ROOT, "%05.1f", remain);
+                String phaseString = "复原";
+                if (currentPhase == GamePhase.DISPLAY) {
+                    phaseString = "观察";
+                }
+                if (currentPhase != GamePhase.JUDGE) {
+                    player.spigot().sendMessage(
+                            ChatMessageType.ACTION_BAR,
+                            new TextComponent(ChatColor.GREEN + "剩余" + phaseString + "时间：" + ChatColor.YELLOW + timeStr)
+                    );
+                }
                 if (timeLeft > 0) {
+                    player.setLevel(Math.ceilDiv(timeLeft, 20));
                     player.setExp((float) timeLeft / totalTime);
                 }
             }
@@ -198,12 +214,13 @@ public class GameLoop {
                             for (int dy = 0; dy < 7; dy ++) {
                                 for (int dx = 0; dx < 7; dx ++) {
                                     for (int dz = 0; dz < 7; dz ++) {
-                                        Location locationNew = new Location(OVERWORLD, x+dx, y+dy, z+dz);
-                                        Block newBlock = locationNew.getBlock();
-                                        if (newBlock.getType() == Material.AIR) continue;
-                                        Location locationDisplay = offset(DISPLAY_LOCATION, dx, dy, dz);
-                                        Block displayBlock = locationDisplay.getBlock();
-                                        if (newBlock.getBlockData().matches(displayBlock.getBlockData())) {
+                                        Location worldLocation = new Location(OVERWORLD, x+dx, y+dy, z+dz);
+                                        Block worldBlock = worldLocation.getBlock();
+                                        if (worldBlock.getType() == Material.AIR) continue;
+                                        Location displayLocation = offset(DISPLAY_LOCATION, dx, dy, dz);
+                                        Block displayBlock = displayLocation.getBlock();
+
+                                        if (isBlockSame(displayBlock, worldBlock)) {
                                             correctBlocks++;
                                         }
                                         else {
@@ -342,7 +359,7 @@ public class GameLoop {
                         if (allCorrect(playerData)) {
                             playerData.setAllCorrect(true);
                             playerData.setCompletionTicks(totalTime - timeLeft);
-                            Bukkit.broadcastMessage(playerData.getPlayerName() + " " + (float) playerData.getCompletionTicks() / 20);
+                            Bukkit.broadcastMessage(ChatColor.GREEN + playerData.getPlayerName() + ChatColor.WHITE + "在" + ChatColor.YELLOW + (float) playerData.getCompletionTicks() / 20 + "s" + ChatColor.WHITE + "内完成");
                             UUID uuid = playerData.getUuid();
                             Player player = Bukkit.getPlayer(uuid);
                             if (player != null) {
@@ -380,7 +397,7 @@ public class GameLoop {
         ToolClass.playing = false;
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getGameMode() == GameMode.SPECTATOR) {
-                player.teleport(BUILD_LOCATION);
+                player.teleport(offset(BUILD_LOCATION, 0, 0, -1));
                 player.setGameMode(GameMode.SURVIVAL);
                 player.getInventory().clear();
                 player.getInventory().setItem(0, ToolClass.create);
@@ -406,15 +423,30 @@ public class GameLoop {
                         Block displayBlock = locationDisplay.getBlock();
                         if (displayBlock.getType() == Material.AIR) continue;
 
-                        Location locationNew = new Location(OVERWORLD, x + dx, y + dy, z + dz);
-                        Block newBlock = locationNew.getBlock();
+                        Location worldLocation = new Location(OVERWORLD, x + dx, y + dy, z + dz);
+                        Block worldBlock = worldLocation.getBlock();
 
+                        if (!isBlockSame(displayBlock, worldBlock)) return false;
 
-                        if (!displayBlock.getBlockData().matches(newBlock.getBlockData())) {
-                            return false;
-                        }
                     }
                 }
+            }
+        }
+        return true;
+    }
+
+    public static boolean isBlockSame(Block displayBlock, Block worldBlock) {
+        if(displayBlock.getType() != worldBlock.getType()){
+            return false;
+        }
+        if(displayBlock.getBlockData() instanceof Stairs){
+            if(!StairsVisualComparator.Compare(displayBlock.getBlockData(),worldBlock.getBlockData())){
+                return false;
+            }
+        }
+        else{
+            if(!worldBlock.getBlockData().matches(displayBlock.getBlockData())){
+                return false;
             }
         }
         return true;
@@ -503,9 +535,6 @@ public class GameLoop {
         }
     }
 
-    public static void startBuilding() {
-        //todo 设置成空气，给方块
-    }
 
     public static Location BUILD_LOCATION = new Location(Bukkit.getWorld("world"), -3, -60, -3);
     public static Location DISPLAY_LOCATION = offset(BUILD_LOCATION, 0, 0, 20);

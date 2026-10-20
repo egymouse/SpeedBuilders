@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.egymouse.speedBuilders.GameLoop;
 import org.egymouse.speedBuilders.ToolClass;
 
 public class PlayerJoinEventListener implements Listener {
@@ -17,7 +18,8 @@ public class PlayerJoinEventListener implements Listener {
             p.sendMessage("你是创造，改成生存重进来玩");
             return;
         }
-        p.teleport(new Location(p.getWorld(),0,-60,0));
+        if (GameLoop.player_data.containsKey(p.getUniqueId())) return;
+        p.teleport(GameLoop.offset(GameLoop.BUILD_LOCATION, 0, 0, -1));
         p.getInventory().clear();
         p.getInventory().setItem(0, ToolClass.create);
         p.getInventory().setItem(1, ToolClass.play);

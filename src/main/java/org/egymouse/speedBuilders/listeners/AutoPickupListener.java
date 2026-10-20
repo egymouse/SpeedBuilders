@@ -5,6 +5,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Door;
+import org.bukkit.block.data.type.Slab;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -68,6 +69,8 @@ public class AutoPickupListener implements Listener {
             return;
         }
 
+        int dropAmount = 1; // 默认掉落 1 个
+
         // 1. 处理床 (Bed)
         if (data instanceof Bed) {
             Bed bed = (Bed) data;
@@ -92,12 +95,19 @@ public class AutoPickupListener implements Listener {
                 otherHalf.setBlockData(Material.AIR.createBlockData(), false);
             }
         }
+        // 3. 处理半砖 (Slab)：双层半砖掉落 2 个
+        else if (data instanceof Slab) {
+            Slab slab = (Slab) data;
+            if (slab.getType() == Slab.Type.DOUBLE) {
+                dropAmount = 2;
+            }
+        }
 
         if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {
             return;
         }
         // 关键：方块是什么就生成什么，完全不参考玩家手中物品
-        ItemStack drop = new ItemStack(type, 1);
+        ItemStack drop = new ItemStack(type, dropAmount);
 
         // 直接进背包；返回值是背包放不下的部分
         var leftover = e.getPlayer().getInventory().addItem(drop);
