@@ -128,7 +128,7 @@ public class BlockEdit {
     public static void pasteSchematic(Location location, File schematicFile) {
 //        Structure structure;
 //        try {
-//            structure = Bukkit.getStructureManager().loadStructure(schematicFile);
+//            structure = Bukkit.getStructureManager() .loadStructure(schematicFile);
 //        }
 //        catch (IOException e) {
 //            throw new RuntimeException(e);

@@ -15,6 +15,9 @@ import org.egymouse.speedBuilders.commands.EndCommand;
 import org.egymouse.speedBuilders.commands.TestCommand;
 import org.egymouse.speedBuilders.listeners.DoubleJumpListener;
 
+import java.util.Map;
+import java.util.UUID;
+
 public final class SpeedBuilders extends JavaPlugin {
 
 
@@ -62,6 +65,15 @@ public final class SpeedBuilders extends JavaPlugin {
                     }
                 }
             }
+
+            ToolClass.destroy_tick.entrySet().removeIf(entry -> {
+                int newVal = entry.getValue() - 1;
+                if (newVal <= 0) {
+                    return true;          // 返回 true → 移除
+                }
+                entry.setValue(newVal);
+                return false;
+            });
         }, 1, 1);
 
 

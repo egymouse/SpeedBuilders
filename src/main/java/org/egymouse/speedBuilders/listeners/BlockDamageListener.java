@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.egymouse.speedBuilders.GameLoop;
 import org.egymouse.speedBuilders.PlayerData;
+import org.egymouse.speedBuilders.ToolClass;
 
 import java.util.UUID;
 
@@ -21,6 +22,11 @@ public class BlockDamageListener implements Listener {
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        // 1. 从事件中获取方块
+        Block block = event.getBlock();
+        Material type = block.getType();
 
 
 
@@ -33,22 +39,28 @@ public class BlockDamageListener implements Listener {
             event.setCancelled(true);
             return;
         }
-
-        // 1. 从事件中获取方块
-        Block block = event.getBlock();
-        Material type = block.getType();
-
-        if (!isInBuildArea(event.getPlayer(), block.getLocation())) {
+        else if (!isInBuildArea(event.getPlayer(), block.getLocation())) {
+            event.setCancelled(true);
+            return;
+        }
+        else if (ToolClass.destroy_tick.containsKey(uuid)) {
             event.setCancelled(true);
             return;
         }
 
 
 
+
+
+
+
         int dropAmount = 1;
         boolean doDrop = true;
         BlockData blockData = block.getBlockData();
-        if (blockData instanceof Slab) {
+        if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {  //todo 增加监听物品产生（最好是监听依附物掉落）如果不是build就取消
+            doDrop = false;
+        }
+        else if (blockData instanceof Slab) {
             Slab slab = (Slab) blockData;
             if (slab.getType() == Slab.Type.DOUBLE) {
                 dropAmount = 2;
@@ -85,6 +97,7 @@ public class BlockDamageListener implements Listener {
 
 
         event.getBlock().setType(Material.AIR);
+        ToolClass.destroy_tick.put(uuid,2);
 
 
 

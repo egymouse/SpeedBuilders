@@ -32,7 +32,7 @@ public class GameLoop {
     public static HashMap<UUID, PlayerData> player_data = new HashMap<>();
     public static int DEFAULT_HEALTH = 3;
     public static int STEP = 20;
-    public static String arenaString = "arena";
+    public static String arenaString = "arena.schem";
     public static World OVERWORLD = Bukkit.getWorld("world");
     public static int TO_CENTER = 3;
     public static int currentRound = 0;
@@ -48,7 +48,7 @@ public class GameLoop {
         ToolClass.playing = true;
         leftStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(false));
         leftLLBStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(true));
-        for (int i = 0; i <= ToolClass.wait_player.size(); i++) {
+        for (int i = 0; i < ToolClass.wait_player.size(); i++) {
             BlockEdit.pasteSchematic(offset(BUILD_LOCATION, i), arenaString);
 
 
@@ -428,6 +428,7 @@ public class GameLoop {
     public static void end() {
         gameLoopTask.cancel();
         ToolClass.playing = false;
+        player_data.clear();
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getGameMode() == GameMode.SPECTATOR) {
                 player.teleport(offset(BUILD_LOCATION, 0, 0, -1));

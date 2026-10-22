@@ -22,6 +22,7 @@ public class ToolClass {
     public static boolean playing = false;
     public static Set<Player> wait_player = new HashSet<>();
     public static int start_time = 30;
+    public static Map<UUID,Integer> destroy_tick = new HashMap<>();
 
     public static void Init(){
         ItemMeta meta = create.getItemMeta();
