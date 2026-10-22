@@ -8,7 +8,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.data.type.SmallDripleaf;
 import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -147,6 +150,20 @@ public class GameLoop {
                                         continue; // 跳过上半部分，避免重复
                                     }
                                 }
+
+                                if(blockData instanceof Bed bed){
+                                    if(bed.getPart() != Bed.Part.HEAD){
+                                        continue;
+                                    }
+
+                                }else if(blockData instanceof Bisected b){
+                                    if(blockData instanceof Stairs || blockData instanceof TrapDoor || blockData instanceof SmallDripleaf){
+//                                        ToolClass.playing_player.get(i).getInventory().addItem(new ItemStack(state.getType()));
+                                    }else if(b.getHalf() != Bisected.Half.BOTTOM){
+                                        continue;
+                                    }
+                                }
+
                                 ItemStack itemStack = new ItemStack(material);
                                 inventory.addItem(itemStack);
 

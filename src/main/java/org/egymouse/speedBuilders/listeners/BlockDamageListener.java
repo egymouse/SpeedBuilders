@@ -4,24 +4,24 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.egymouse.speedBuilders.GameLoop;
 import org.egymouse.speedBuilders.PlayerData;
 
 import java.util.UUID;
 
-public class InstantBreakListener implements Listener {
+public class BlockDamageListener implements Listener {
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
 
-
-
-//        event.setInstaBreak(true);
-//        if (true) return;
 
 
         // 1. 仅对生存模式玩家生效
@@ -36,23 +36,61 @@ public class InstantBreakListener implements Listener {
 
         // 1. 从事件中获取方块
         Block block = event.getBlock();
+        Material type = block.getType();
 
         if (!isInBuildArea(event.getPlayer(), block.getLocation())) {
             event.setCancelled(true);
             return;
         }
 
-        // 2. 获取方块的材质 (Material)
-        Material material = block.getType();
 
-        // 3. 获取硬度 (getHardness 返回 float)
-        // 注意：此方法需要较新版本的 Spigot/Paper API (1.20.5+)
-        float hardness = material.getHardness();
 
-        if (hardness == 0) return;
+        int dropAmount = 1;
+        boolean doDrop = true;
+        BlockData blockData = block.getBlockData();
+        if (blockData instanceof Slab) {
+            Slab slab = (Slab) blockData;
+            if (slab.getType() == Slab.Type.DOUBLE) {
+                dropAmount = 2;
+            }
+        }
+        else if(blockData instanceof Bed b){
+            if(b.getPart() != Bed.Part.HEAD){
+                doDrop = false;
+            }
+        }else if(blockData instanceof Bisected b){
+            if(blockData instanceof Stairs || blockData instanceof TrapDoor || blockData instanceof SmallDripleaf){
+
+            }else{
+                if(b.getHalf() != Bisected.Half.BOTTOM){
+                    doDrop = false;
+                }
+            }
+
+        }
+
+        if (doDrop) {
+            // 关键：方块是什么就生成什么，完全不参考玩家手中物品
+            ItemStack drop = new ItemStack(type, dropAmount);
+
+            // 直接进背包；返回值是背包放不下的部分
+            var leftover = event.getPlayer().getInventory().addItem(drop);
+
+            // 背包满了就掉在方块原位置，避免吞物品
+            leftover.values().forEach(item ->
+                    block.getWorld().dropItemNaturally(block.getLocation(), item)
+            );
+        }
+
+
+
+        event.getBlock().setType(Material.AIR);
+
+
 
         // 4. 核心：设置为瞬间破坏
         event.setInstaBreak(true);  //todo 修复秒破无挖掘延迟的bug
+        event.setCancelled(true);
 
 
 //        event.getBlock().setType(Material.AIR);

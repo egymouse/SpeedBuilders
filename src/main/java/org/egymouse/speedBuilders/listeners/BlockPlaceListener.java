@@ -1,12 +1,9 @@
 package org.egymouse.speedBuilders.listeners;
 
 import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.egymouse.speedBuilders.GameLoop;
 
@@ -27,7 +24,7 @@ public class BlockPlaceListener implements Listener {
         // 1. 从事件中获取方块
         Block block = event.getBlock();
 
-        if (!InstantBreakListener.isInBuildArea(event.getPlayer(), block.getLocation())) {
+        if (!BlockDamageListener.isInBuildArea(event.getPlayer(), block.getLocation())) {
             event.setCancelled(true);
             return;
         }

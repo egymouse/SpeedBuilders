@@ -1,33 +1,23 @@
 package org.egymouse.speedBuilders.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.inventory.ItemStack;
 
 
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.block.data.Bisected;
 import org.egymouse.speedBuilders.GameLoop;
 
-public class AutoPickupListener implements Listener {
+public class BlockBreakListener implements Listener {
 
 //    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 //    public void onBlockBreak(BlockBreakEvent e) {
@@ -51,18 +41,12 @@ public class AutoPickupListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
-//        if (true) return;
-        if (e.getPlayer() == null) {
-            e.setCancelled(true);
-            Bukkit.broadcastMessage("没人的破坏方块");
-            return;
-        }
         if (e.getPlayer().getGameMode() == GameMode.CREATIVE ) return;
 
-//        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
-//            e.setCancelled(true);
-//            return;
-//        }
+        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+            e.setCancelled(true);
+            return;
+        }
 
         Block block = e.getBlock();
         Material type = block.getType();
