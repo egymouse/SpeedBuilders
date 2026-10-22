@@ -40,8 +40,7 @@ public class GameLoop {
 
     public static boolean killAll = false;
     public static boolean slowestDies = false;
-    //todo 挖掘，板砖，掉方块，初始化arena
-    //tod 楼梯拐角
+    //todo 掉方块
 
 
     public static void start() {
@@ -344,6 +343,7 @@ public class GameLoop {
                 if (currentPhase != GamePhase.BUILD) {
                     if (currentPhase == GamePhase.DISPLAY) {
                         timeLeft = 15*20;
+                        timeLeft = 50;
                     }
                     else {
                         timeLeft = 100;
@@ -569,13 +569,15 @@ public class GameLoop {
             random -= leftStructureFileList.size();
             currentIsLLB = true;
             file = leftLLBStructureFileList.get(random);
+            leftLLBStructureFile.remove(file);
         }
         else {
             currentIsLLB = false;
             file = leftStructureFileList.get(random);
+            leftStructureFile.remove(file);
         }
         currentBuildFile = file;
-        leftStructureFile.remove(file);
+
 
         try {
             currentBuildStructure = Bukkit.getStructureManager().loadStructure(file);
