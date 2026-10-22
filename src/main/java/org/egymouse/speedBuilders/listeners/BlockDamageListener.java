@@ -22,6 +22,7 @@ public class BlockDamageListener implements Listener {
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
+        if (true) return;
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         // 1. 从事件中获取方块

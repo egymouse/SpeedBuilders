@@ -142,13 +142,6 @@ public class GameLoop {
                                 totalBlockCount++;
 
                                 BlockData blockData = block.getBlockData();
-                                // 如果是 Bisected 方块（门、床等），只处理下半部分
-                                if (blockData instanceof Bisected) {
-                                    Bisected bisected = (Bisected) blockData;
-                                    if (bisected.getHalf() != Bisected.Half.BOTTOM) {
-                                        continue; // 跳过上半部分，避免重复
-                                    }
-                                }
 
                                 if(blockData instanceof Bed bed){
                                     if(bed.getPart() != Bed.Part.HEAD){
