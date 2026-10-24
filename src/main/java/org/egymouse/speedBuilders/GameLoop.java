@@ -48,6 +48,7 @@ public class GameLoop {
         ToolClass.playing = true;
         leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(false));
         leftLLBStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(true));
+        currentRound = 0;
         for (int i = 0; i < ToolClass.wait_player.size(); i++) {
 //            BlockEdit.pasteSchematic(offset(BUILD_LOCATION, i), arenaString);
             BlockEdit.pasteArena(i);
@@ -433,6 +434,7 @@ public class GameLoop {
         gameLoopTask.cancel();
         ToolClass.playing = false;
         player_data.clear();
+        currentRound = 0;
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getGameMode() == GameMode.SPECTATOR) {
                 player.teleport(offset(BUILD_LOCATION, 0, 0, -1));
