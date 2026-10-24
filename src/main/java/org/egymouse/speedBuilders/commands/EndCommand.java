@@ -10,7 +10,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.structure.Structure;
 import org.bukkit.util.BlockVector;
+import org.egymouse.speedBuilders.BlockEdit;
 import org.egymouse.speedBuilders.GameLoop;
+import org.egymouse.speedBuilders.SpeedBuilders;
 import org.egymouse.speedBuilders.ToolClass;
 import org.jspecify.annotations.NonNull;
 
@@ -33,8 +35,9 @@ public class EndCommand implements CommandExecutor {
         Structure structure = Bukkit.getStructureManager().createStructure();
 
         structure.fill(GameLoop.offset(GameLoop.CREATE_LOCATION, 0, -1, 0),new BlockVector(7,8,7),false);
-        Path dir = Paths.get("plugins/buildings/" + name + ".nbt");
-        File file = dir.toFile();
+//        Path dir = Paths.get("plugins/buildings/" + name + ".nbt");
+//        File file = dir.toFile();
+        File file = new File(SpeedBuilders.getPlugin().getDataFolder(), BlockEdit.BUILDINGS_PATH + "/" + name + ".nbt");
         if(!file.exists()){
             try {
                 // 创建完整的父目录（如果父目录已存在则静默跳过）

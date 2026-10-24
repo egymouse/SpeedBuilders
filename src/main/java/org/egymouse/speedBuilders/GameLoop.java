@@ -6,7 +6,6 @@ import org.ajls.lib.utils.ConfigU;
 import org.ajls.lib.utils.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
@@ -41,15 +40,17 @@ public class GameLoop {
 
     public static boolean killAll = false;
     public static boolean slowestDies = false;
+    public static boolean noPeeking = false;
     //todo 掉方块
 
 
     public static void start() {
         ToolClass.playing = true;
-        leftStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(false));
-        leftLLBStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(true));
+        leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(false));
+        leftLLBStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(true));
         for (int i = 0; i < ToolClass.wait_player.size(); i++) {
-            BlockEdit.pasteSchematic(offset(BUILD_LOCATION, i), arenaString);
+//            BlockEdit.pasteSchematic(offset(BUILD_LOCATION, i), arenaString);
+            BlockEdit.pasteArena(i);
 
 
 
@@ -191,8 +192,9 @@ public class GameLoop {
                         int offset = playerData.getOffset();
                         Location buildLocation = offset(BUILD_LOCATION, offset);
                         fillAir(buildLocation);
-                        playerFill(buildLocation, Material.BEDROCK);
-
+                        if (noPeeking) {
+                            playerFill(buildLocation, Material.BEDROCK);
+                        }
 
                     }
                 }
@@ -242,13 +244,13 @@ public class GameLoop {
                     scheduler.runTaskLater(SpeedBuilders.getPlugin(), () -> {
                         List<PlayerData> playerDataList = new ArrayList<PlayerData>(player_data.values());  //修复了内存引用直接把Playerdata删除的Bug
                         List<PlayerData> sortedPlayerDataList = new ArrayList<>();
-                        Bukkit.broadcastMessage(totalBlockCount + "总方块数");
+                        Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "总方块数:" + totalBlockCount);
 
 
                         HashSet<PlayerData> allCorrectPlayerData = new HashSet<>();
                         for (PlayerData playerData : playerDataList) {
                             if (playerData.isAllCorrect()) {
-                                Bukkit.broadcastMessage(playerData.getPlayerName() + ":全对" + " 生命:" + playerData.getHealth());
+                                Bukkit.broadcastMessage(ChatColor.DARK_GREEN + playerData.getPlayerName() + ":全对" + " 生命:" + playerData.getHealth());
                                 allCorrectPlayerData.add(playerData);
 
                             }
@@ -285,7 +287,7 @@ public class GameLoop {
                             UUID uuid = playerData.getUuid();
                             Player player = Bukkit.getPlayer(uuid);
                             if (player != null) {
-                                Bukkit.broadcastMessage(player.getName() + ":" + playerData.getBlockRight() + "对的方块数" + " 生命:" + playerData.getHealth());
+                                Bukkit.broadcastMessage(ChatColor.GREEN + player.getName() + ":" + playerData.getBlockRight() + "对" + " 生命:" + playerData.getHealth());
                             }
                         }
                         if (sortedPlayerDataList.isEmpty()) {
@@ -295,10 +297,10 @@ public class GameLoop {
 
                             PlayerData lastPlayerData = sortedPlayerDataList.getLast();
                             lastPlayerData.setHealth(lastPlayerData.getHealth()-1);
-                            Bukkit.broadcastMessage(lastPlayerData.getPlayerName() + "的生命变成了" + lastPlayerData.getHealth());
+                            Bukkit.broadcastMessage(ChatColor.YELLOW + lastPlayerData.getPlayerName() + "的生命变成了" + lastPlayerData.getHealth());
 
                             if (lastPlayerData.getHealth() <= 0) {
-                                Bukkit.broadcastMessage(lastPlayerData.getPlayerName() + "飘零了");
+                                Bukkit.broadcastMessage(ChatColor.RED + lastPlayerData.getPlayerName() + "飘零了");
                                 player_data.remove(lastPlayerData.getUuid());
                                 Bukkit.broadcastMessage(player_data.size() + " remain");
                                 if (player_data.size() == 1) {
@@ -370,7 +372,7 @@ public class GameLoop {
                                 player.sendMessage(ChatColor.LIGHT_PURPLE + "新的记录!");
                             }
                             else {
-                                player.sendMessage(ChatColor.DARK_GRAY + "您的最佳记录:" + ChatColor.GRAY + ConfigManager.getPersonalBestTime(uuid, currentBuildName));
+                                player.sendMessage(ChatColor.DARK_GRAY + "您的最佳记录:" + ChatColor.GRAY + (float) ConfigManager.getPersonalBestTime(uuid, currentBuildName) / 20 + "s");
                             }
 
                             if (player != null) {
@@ -560,8 +562,8 @@ public class GameLoop {
 
     public static void generateNewBuild() {
         if (leftStructureFile.isEmpty() && leftLLBStructureFile.isEmpty()) {
-            leftStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(false));
-            leftLLBStructureFile = new HashSet<>(BlockEdit.getAllSchematicFiles(true));
+            leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(false));
+            leftLLBStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(true));
         }
 
 

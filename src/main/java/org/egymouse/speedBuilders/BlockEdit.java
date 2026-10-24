@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -50,22 +49,13 @@ public class BlockEdit {
 
     }
 
-    public static List<File> getAllSchematicFiles(boolean isLLB) {
-//        File dir = getWorldEditDataFolder();
-//        File schemsDir = new File(dir, "schematics/");
-//        String[] names = schemsDir.list();   // 返回文件名数组，可能为 null
-//
-//        if (names != null) {
-//            List<String> fileNames = new ArrayList<>(Arrays.asList(names));
-//            System.out.println(fileNames);
-//            return fileNames;
+    public static List<File> getAllStructureFiles(boolean isLLB) {
+//        Path dir = Paths.get("plugins/buildings");
+//        if (isLLB) {
+//            dir = Paths.get("plugins/buildings_llb");
 //        }
-//        return null;
-
-        Path dir = Paths.get("plugins/buildings");
-        if (isLLB) {
-            dir = Paths.get("plugins/buildings_llb");
-        }
+        Path dir = SpeedBuilders.getPlugin().getDataFolder().toPath()
+                .resolve(isLLB ? BUILDINGS_LLB_PATH : BUILDINGS_PATH);
         List<File> all_structures = new ArrayList<>();
         try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir,"*.nbt")){
             for(Path entry : stream){
@@ -78,6 +68,21 @@ public class BlockEdit {
         }
         return all_structures;
     }
+
+    public static String BUILDINGS_PATH = "buildings";
+    public static String BUILDINGS_LLB_PATH = "buildings_llb";
+    public static String COMMON_BUILDINGS = "common_buildings";
+
+
+    public static File getStructureFile(String relativePath) {
+        File file = new File(SpeedBuilders.getPlugin().getDataFolder(), relativePath);
+        return file;
+    }
+
+//    public static Structure getStructure(File file) {
+//        return Bukkit.getStructureManager().loadStructure(file);
+//    }
+
 
     public static File getWorldEditDataFolder() {
         // 获取 WorldEdit 插件实例
@@ -103,6 +108,9 @@ public class BlockEdit {
 
 
     public static boolean noBlockPhysics = false;
+    public static void pasteStructure(Location location, Structure structure) {
+        pasteStructure(location, structure, false);
+    }
     public static void pasteStructure(Location location, Structure structure, boolean isLLB) {
 //        GameLoop.fillAir(location);
         noBlockPhysics = true;
@@ -124,6 +132,27 @@ public class BlockEdit {
         }
         structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
         noBlockPhysics = false;
+    }
+
+//    public static void pasteStructure(Location location, Structure structure, int dx, int dy, int dz) {
+//
+//    }
+
+    public static void pasteArena(Location location) {
+        File file = getStructureFile(COMMON_BUILDINGS + "/" + "arena.nbt");
+        Structure structure;
+        try {
+            structure = Bukkit.getStructureManager().loadStructure(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        pasteStructure(GameLoop.offset(location, -4, 0, -4), structure);
+    }
+
+    public static void pasteArena(int offset) {
+        pasteArena(GameLoop.offset(GameLoop.BUILD_LOCATION, offset));
+
     }
     public static void pasteSchematic(Location location, File schematicFile) {
 //        Structure structure;
