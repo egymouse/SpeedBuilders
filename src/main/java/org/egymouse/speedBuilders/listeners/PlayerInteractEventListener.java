@@ -27,76 +27,53 @@ public class PlayerInteractEventListener implements Listener {
         Player player = e.getPlayer();
         ItemStack itemStack = e.getItem();
          if((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) &&  (e.getHand() == EquipmentSlot.HAND)){
-            if(e.getItem()!=null){  //只能改成offhand，事件执行的时候玩家其实还没interact，瞬间替换物品导致玩家发现新物品又interact，然后切换回去重复了就不Interact了
-                //不对应该是延后1tick
-//                Bukkit.broadcastMessage(itemStack.getType().name());
-//                Bukkit.broadcastMessage(player.getInventory().getItemInMainHand().getType().name());
-                BukkitScheduler bukkitScheduler = Bukkit.getScheduler();
-                bukkitScheduler.runTaskLater(SpeedBuilders.getPlugin(), () -> {
-//                    Bukkit.broadcastMessage(itemStack.getType().name());
-//                    Bukkit.broadcastMessage(player.getInventory().getItemInMainHand().getType().name());
+             if (itemStack == null) return;
+             if (!ToolClass.isPluginItem(itemStack)) return;
+             BukkitScheduler bukkitScheduler = Bukkit.getScheduler();
+             bukkitScheduler.runTaskLater(SpeedBuilders.getPlugin(), () -> {
+                 if(e.getItem().getType() == Material.MAGMA_CREAM){
+                     if(ToolClass.playing){
+                         e.getPlayer().sendMessage(ChatColor.RED + "游戏已经开始，请稍后");
+                         return;
+                     }
+                     if(!ToolClass.wait_player.contains(e.getPlayer())){
+                         ToolClass.wait_player.add(e.getPlayer());
+                         e.getPlayer().getInventory().clear();
+                         e.getPlayer().sendMessage(ChatColor.GREEN + "你进入了游玩队列");
+                         Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
+                         e.getPlayer().getInventory().setItem(1,ToolClass.cancel);
+                         e.getPlayer().getInventory().setItem(0,ToolClass.start);
+                     }else{
+                         e.getPlayer().sendMessage(ChatColor.RED + "你已经在游玩队列当中");
+                     }
 
-                    if(e.getItem().getType() == Material.MAGMA_CREAM){
-                        if(ToolClass.playing){
-                            e.getPlayer().sendMessage(ChatColor.RED + "游戏已经开始，请稍后");
-                            return;
-                        }
-                        if(!ToolClass.wait_player.contains(e.getPlayer())){
-                            ToolClass.wait_player.add(e.getPlayer());
-                            e.getPlayer().getInventory().clear();
-                            e.getPlayer().sendMessage(ChatColor.GREEN + "你进入了游玩队列");
-                            Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
-                            e.getPlayer().getInventory().setItem(1,ToolClass.cancel);
-                            e.getPlayer().getInventory().setItem(0,ToolClass.start);
-//                            Bukkit.broadcastMessage(Bukkit.getCurrentTick() + "");
-//                            Bukkit.broadcastMessage(e.getAction().toString());
-                        }else{
-                            e.getPlayer().sendMessage(ChatColor.RED + "你已经在游玩队列当中");
-                        }
+                 }
+                 else if(e.getItem().getType() == Material.STICK){
+                     if(ToolClass.wait_player.contains(e.getPlayer())){
+                         ToolClass.wait_player.remove(e.getPlayer());
+                         e.getPlayer().getInventory().clear();
+                         e.getPlayer().sendMessage(ChatColor.GREEN + "你退出了游玩队列");
+                         Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
+                         e.getPlayer().getInventory().setItem(0,ToolClass.create);
+                         e.getPlayer().getInventory().setItem(1,ToolClass.play);
+                     }else{
+                         e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
+                     }
 
-                    }
-                    else if(e.getItem().getType() == Material.STICK){
-                        if(ToolClass.wait_player.contains(e.getPlayer())){
-                            ToolClass.wait_player.remove(e.getPlayer());
-                            e.getPlayer().getInventory().clear();
-                            e.getPlayer().sendMessage(ChatColor.GREEN + "你退出了游玩队列");
-                            Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
-                            e.getPlayer().getInventory().setItem(0,ToolClass.create);
-                            e.getPlayer().getInventory().setItem(1,ToolClass.play);
-//                            Bukkit.broadcastMessage(Bukkit.getCurrentTick() + "");
-//                            Bukkit.broadcastMessage(e.getAction().name());
-                        }else{
-                            e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
-                        }
+                 }
+                 else if(e.getItem().getType() == Material.EMERALD){
+                     if(ToolClass.wait_player.contains(e.getPlayer())){
+                         e.getPlayer().getInventory().clear();
+                         Bukkit.broadcastMessage(player.getName() + "开始了游戏");
+                         GameLoop.start();
+                     }else{
+                         e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
+                     }
 
-                    }
-                    else if(e.getItem().getType() == Material.EMERALD){
-                        if(ToolClass.wait_player.contains(e.getPlayer())){
-                            e.getPlayer().getInventory().clear();
-                            Bukkit.broadcastMessage(player.getName() + "开始了游戏");
-                            GameLoop.start();
-                        }else{
-                            e.getPlayer().sendMessage(ChatColor.RED + "你没在游玩队列当中");
-                        }
+                 }
 
-                    }
-
-                }, 1);
-                //                if (e.getItem().getType() == Material.COAL) {
-//                    player.getInventory().setItemInMainHand(new ItemStack(Material.IRON_INGOT));
-//                }
-//                else if (itemStack.getType() == Material.IRON_INGOT) {
-//                    player.getInventory().setItemInMainHand(new ItemStack(Material.GOLD_INGOT));
-//                }
-//                else if (itemStack.getType() == Material.GOLD_INGOT) {
-//                    player.getInventory().setItemInMainHand(new ItemStack(Material.DIAMOND));
-//                }
-//                else if (itemStack.getType() == Material.DIAMOND) {
-//                    player.getInventory().setItemInMainHand(new ItemStack(Material.NETHERITE_INGOT));
-//                }
-
-            }
-        }
+             }, 1);
+         }
 
     }
 

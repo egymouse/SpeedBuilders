@@ -114,8 +114,13 @@ public class DoubleJumpListener implements Listener {
         // 施加冲量
         Vector direction = player.getLocation().getDirection();
         direction = new Vector(0, 1, 0);
-        Vector impulse = direction.multiply(0.6).setY(1.2); // 向前 + 向上  //y原本是0.9
+        Vector impulse = direction.multiply(0.6).setY(1); // 向前 + 向上  //y原本是0.9  1.2
         player.setVelocity(player.getVelocity().add(impulse));
+
+
+        Vector vector = player.getVelocity();
+        vector.setY(1);
+        player.setVelocity(vector);
         // 如果想让冲量完全替换原速度，直接 player.setVelocity(impulse) 即可
 
         // 触发后移出“空中”集合，防止同一段空中多次触发

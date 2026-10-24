@@ -1,5 +1,6 @@
 package org.egymouse.speedBuilders;
 
+import org.ajls.lib.utils.ItemStackU;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -30,25 +31,37 @@ public class ToolClass {
         meta.setDisplayName(ChatColor.YELLOW + "出题");
         meta.setLore(List.of(ChatColor.GREEN + "右键前往出题"));
         create.setItemMeta(meta);
+        setPluginItem(create);
 
         ItemMeta meta1 = play.getItemMeta();
         assert meta1 != null;
         meta1.setDisplayName(ChatColor.YELLOW + "游玩");
         meta1.setLore(List.of(ChatColor.GREEN + "右键进行准备"));
         play.setItemMeta(meta1);
+        setPluginItem(play);
 
         meta1 = cancel.getItemMeta();
         assert meta1 != null;
         meta1.setDisplayName(ChatColor.YELLOW + "退出队列");
         meta1.setLore(List.of(ChatColor.GREEN + "右键进行退出"));
         cancel.setItemMeta(meta1);
+        setPluginItem(cancel);
 
         meta1 = start.getItemMeta();
         assert meta1 != null;
         meta1.setDisplayName(ChatColor.YELLOW + "开始游戏");
         meta1.setLore(List.of(ChatColor.GREEN + "右键"));
         start.setItemMeta(meta1);
+        setPluginItem(start);
 
+    }
+
+    public static void setPluginItem(ItemStack itemStack) {
+        ItemStackU.setPersistentData(itemStack, NameSpacedKeys.PLUGIN_ITEM, PersistentDataType.BOOLEAN, true);
+    }
+
+    public static boolean isPluginItem(ItemStack itemStack) {
+        return ItemStackU.hasPersistentData(itemStack, NameSpacedKeys.PLUGIN_ITEM, PersistentDataType.BOOLEAN);
     }
 
 

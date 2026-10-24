@@ -12,5 +12,5 @@ commands:
   end:
     description: 保存建筑
 
-depend: [ ProtocolLib , WorldEdit ]
+depend: [ WorldEdit ]
 
