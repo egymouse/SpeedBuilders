@@ -2,6 +2,7 @@ package org.egymouse.speedBuilders;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.ajls.lib.utils.ConfigU;
 import org.ajls.lib.utils.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -361,9 +362,17 @@ public class GameLoop {
                         if (allCorrect(playerData)) {
                             playerData.setAllCorrect(true);
                             playerData.setCompletionTicks(totalTime - timeLeft);
-                            Bukkit.broadcastMessage(ChatColor.GREEN + playerData.getPlayerName() + ChatColor.WHITE + "在" + ChatColor.YELLOW + (float) playerData.getCompletionTicks() / 20 + "s" + ChatColor.WHITE + "内完成");
                             UUID uuid = playerData.getUuid();
                             Player player = Bukkit.getPlayer(uuid);
+                            Bukkit.broadcastMessage(ChatColor.GREEN + playerData.getPlayerName() + ChatColor.WHITE + "在" + ChatColor.YELLOW + (float) playerData.getCompletionTicks() / 20 + "s" + ChatColor.WHITE + "内完成");
+                            boolean isNewPB = ConfigManager.tryUpdatePersonalBestTime(playerData.getUuid(), currentBuildName, playerData.getCompletionTicks());
+                            if (isNewPB) {
+                                player.sendMessage(ChatColor.LIGHT_PURPLE + "新的记录!");
+                            }
+                            else {
+                                player.sendMessage(ChatColor.DARK_GRAY + "您的最佳记录:" + ChatColor.GRAY + ConfigManager.getPersonalBestTime(uuid, currentBuildName));
+                            }
+
                             if (player != null) {
                                 player.setGameMode(GameMode.SPECTATOR);
                             }
@@ -546,6 +555,8 @@ public class GameLoop {
     public static File currentBuildFile;
     public static Structure currentBuildStructure;
     public static boolean currentIsLLB;
+    public static String currentBuildFileName;
+    public static String currentBuildName;
 
     public static void generateNewBuild() {
         if (leftStructureFile.isEmpty() && leftLLBStructureFile.isEmpty()) {
@@ -570,6 +581,8 @@ public class GameLoop {
             leftStructureFile.remove(file);
         }
         currentBuildFile = file;
+        currentBuildFileName = file.getName();
+        currentBuildName = ConfigU.getParentPath(file.getName());
 
 
         try {
