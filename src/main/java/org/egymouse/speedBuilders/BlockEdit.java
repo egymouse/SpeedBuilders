@@ -155,6 +155,7 @@ public class BlockEdit {
     }
 
     public static void generateDefaultGround(Location location) {
+        noBlockPhysics = true;
         int x = location.getBlockX();
         int z = location.getBlockZ();
         int y = location.getBlockY()-1;
@@ -165,6 +166,7 @@ public class BlockEdit {
                 newBlock.setType(Material.WHITE_CONCRETE);  //llb同款
             }
         }
+        noBlockPhysics = false;
     }
 
 //    public static void pasteStructure(Location location, Structure structure, int dx, int dy, int dz) {

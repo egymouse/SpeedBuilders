@@ -15,7 +15,7 @@ import java.util.List;
 
 public class BlockDropItemListener implements Listener {
     @EventHandler
-    public void onBlockDrop(BlockDropItemEvent event) {  //todo 改成blockDestroyEvent
+    public void onBlockDrop(BlockDropItemEvent event) {  //todo 改成blockDestroyEvent 哎我就不改 我等szm强烈要求我再改  毕竟这个浪费世界优化的很少，不如新增一些简单的对体验优化大的功能
 //        event.setCancelled(true);
         Player player = event.getPlayer();
         Block block = event.getBlock();
