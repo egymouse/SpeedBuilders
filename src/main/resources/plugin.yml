@@ -11,6 +11,8 @@ commands:
     usage: /<command>
   end:
     description: 保存建筑
+  merge:
+    description: merge
 
 depend: [ WorldEdit ]
 

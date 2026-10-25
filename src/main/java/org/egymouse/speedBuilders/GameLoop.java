@@ -128,7 +128,7 @@ public class GameLoop {
                         timeForBuilding -= 40;
                     }
                     generateNewBuild();
-                    BlockEdit.pasteStructure(DISPLAY_LOCATION, currentBuildStructure, currentIsLLB);
+                    BlockEdit.pasteBuildStructure(DISPLAY_LOCATION, currentBuildStructure, currentIsLLB);
                     totalBlockCount = 0;
                     Inventory inventory = Bukkit.createInventory(null, 36);
                     int x = DISPLAY_LOCATION.getBlockX();
@@ -178,7 +178,7 @@ public class GameLoop {
                         Location location = offset(BUILD_LOCATION, offset);
                         player.teleport(toTeleportLocation(offset(location, 0, 0, -1)));
                         player.setGameMode(GameMode.SURVIVAL);
-                        BlockEdit.pasteStructure(location, currentBuildStructure, currentIsLLB);
+                        BlockEdit.pasteBuildStructure(location, currentBuildStructure, currentIsLLB);
                         Inventory playerInventory = player.getInventory();
                         for (int i = 0; i <36; i++) {
                             ItemStack itemStack = inventory.getItem(i);
@@ -601,6 +601,7 @@ public class GameLoop {
     public static Location BUILD_LOCATION = new Location(Bukkit.getWorld("world"), -3, -60, -3);
     public static Location DISPLAY_LOCATION = offset(BUILD_LOCATION, 0, 0, 20);
     public static Location CREATE_LOCATION = offset(BUILD_LOCATION, 0, 0, -20);
+    public static Location STRUCTURE_CACHE_LOCATION = offset(BUILD_LOCATION, 0, 260, 0); //200格
 
 
 

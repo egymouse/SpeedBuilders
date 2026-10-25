@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.egymouse.speedBuilders.commands.EndCommand;
+import org.egymouse.speedBuilders.commands.MergeCommand;
 import org.egymouse.speedBuilders.commands.TestCommand;
 import org.egymouse.speedBuilders.listeners.DoubleJumpListener;
 
@@ -50,6 +51,7 @@ public final class SpeedBuilders extends JavaPlugin {
         registerAllListeners();
         getCommand("test").setExecutor(new TestCommand());
         getCommand("end").setExecutor(new EndCommand());
+        getCommand("merge").setExecutor(new MergeCommand());
         World world = Bukkit.getWorld("world");
         world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);

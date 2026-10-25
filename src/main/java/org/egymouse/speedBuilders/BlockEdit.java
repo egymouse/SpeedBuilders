@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -71,6 +70,7 @@ public class BlockEdit {
 
     public static String BUILDINGS_PATH = "buildings";
     public static String BUILDINGS_LLB_PATH = "buildings_llb";
+    public static String GROUNDS_PATH = "grounds";
     public static String COMMON_BUILDINGS = "common_buildings";
 
 
@@ -107,11 +107,16 @@ public class BlockEdit {
 
 
 
-    public static boolean noBlockPhysics = false;
     public static void pasteStructure(Location location, Structure structure) {
-        pasteStructure(location, structure, false);
+        noBlockPhysics = true;
+        structure.place(location,false, StructureRotation.NONE, Mirror.NONE,0,1.0f,new Random());
+        noBlockPhysics = false;
     }
-    public static void pasteStructure(Location location, Structure structure, boolean isLLB) {
+    public static boolean noBlockPhysics = false;
+    public static void pasteBuildStructure(Location location, Structure structure) {
+        pasteBuildStructure(location, structure, false);
+    }
+    public static void pasteBuildStructure(Location location, Structure structure, boolean isLLB) {
 //        GameLoop.fillAir(location);
         noBlockPhysics = true;
         if (!isLLB) {
@@ -134,6 +139,19 @@ public class BlockEdit {
         noBlockPhysics = false;
     }
 
+    public static void generateDefaultGround(Location location) {
+        int x = location.getBlockX();
+        int z = location.getBlockZ();
+        int y = location.getBlockY()-1;
+        for (int dx = 0; dx < 7; dx ++) {
+            for (int dz = 0; dz < 7; dz++) {
+                Location locationNew = new Location(GameLoop.OVERWORLD, x+dx, y, z+dz);
+                Block newBlock = locationNew.getBlock();
+                newBlock.setType(Material.WHITE_CONCRETE);  //llb同款
+            }
+        }
+    }
+
 //    public static void pasteStructure(Location location, Structure structure, int dx, int dy, int dz) {
 //
 //    }
@@ -147,7 +165,7 @@ public class BlockEdit {
             throw new RuntimeException(e);
         }
 
-        pasteStructure(GameLoop.offset(location, -4, 0, -4), structure);
+        pasteBuildStructure(GameLoop.offset(location, -4, 0, -4), structure);
     }
 
     public static void pasteArena(int offset) {
