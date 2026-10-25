@@ -13,6 +13,8 @@ commands:
     description: 保存建筑
   merge:
     description: merge
+  train:
+  hub:
 
 depend: [ WorldEdit ]
 

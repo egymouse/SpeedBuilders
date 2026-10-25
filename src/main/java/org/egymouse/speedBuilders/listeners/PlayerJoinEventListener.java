@@ -32,4 +32,16 @@ public class PlayerJoinEventListener implements Listener {
 //            p.setGameMode(GameMode.ADVENTURE);
 
     }
+
+    public static void resetPlayer(Player player) {
+        player.teleport(
+                GameLoop.toTeleportLocation(
+                        GameLoop.offset(
+                                GameLoop.BUILD_LOCATION, 0, 0, -1)));
+        player.setGameMode(GameMode.SURVIVAL);
+        player.getInventory().clear();
+        player.getInventory().setItem(0, ToolClass.create);
+        player.getInventory().setItem(1, ToolClass.play);
+
+    }
 }

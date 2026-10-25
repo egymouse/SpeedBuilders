@@ -6,6 +6,7 @@ import org.ajls.lib.utils.ConfigU;
 import org.ajls.lib.utils.RandomUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Bed;
@@ -18,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.structure.Structure;
+import org.egymouse.speedBuilders.listeners.PlayerJoinEventListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,6 +86,10 @@ public class GameLoop {
     public static int totalBlockCount = 0;
 
     public static BukkitTask gameLoopTask;
+
+    public static int DISPLAY_TIME = 100; //15*20 = 300
+    public static int BUILD_TIME = 1200;
+    public static int JUDGE_TIME = 100;
 
     public static void gameLoop() {
         totalTime = 100;
@@ -332,7 +338,7 @@ public class GameLoop {
 
 
 
-                    }, 50);
+                    }, JUDGE_TIME/2);
 
 
 
@@ -343,14 +349,16 @@ public class GameLoop {
                     if (currentPhase == GamePhase.DISPLAY) {
                         timeLeft = 15*20;
                         timeLeft = 50;
+                        timeLeft = DISPLAY_TIME;
                     }
                     else {
                         timeLeft = 100;
+                        timeLeft = JUDGE_TIME;
                     }
 
                 }
                 else {
-                    timeLeft = 1200 - currentRound*40 ; //todo 逐渐减少
+                    timeLeft = BUILD_TIME - currentRound*40 ; //todo 逐渐减少
                 }
                 totalTime = timeLeft;
 
@@ -439,6 +447,30 @@ public class GameLoop {
         }
     }
 
+    public static void destroyPlatform(Location buildLocation) {
+        {
+            int x = buildLocation.getBlockX() - 4;
+            int y = buildLocation.getBlockY() - 1;
+            int z = buildLocation.getBlockZ() - 4;
+            for (int dy = 0; dy < 8; dy ++) {
+                for (int dx = 0; dx < 15; dx ++) {
+                    for (int dz = 0; dz < 15; dz ++) {
+//                                        Location locationNew = new Location(OVERWORLD, x+dx, y+dy, z+dz);
+//                                        locationNew.getBlock().setType(Material.AIR, false);
+
+                        Block block = new Location(OVERWORLD, x + dx, y + dy, z + dz).getBlock();
+//                                        BlockState state = block.getState();
+//                                        state.setType(Material.AIR);
+//                                        // 第二个参数 false 表示不应用物理/方块更新
+//                                        state.update(true, false);
+//
+                        block.setBlockData(Bukkit.createBlockData(Material.AIR),false);
+                    }
+                }
+            }
+        }
+    }
+
     public static void end() {
         gameLoopTask.cancel();
         ToolClass.playing = false;
@@ -446,13 +478,13 @@ public class GameLoop {
         currentRound = 0;
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getGameMode() == GameMode.SPECTATOR) {
-                player.teleport(offset(BUILD_LOCATION, 0, 0, -1));
-                player.setGameMode(GameMode.SURVIVAL);
-                player.getInventory().clear();
-                player.getInventory().setItem(0, ToolClass.create);
-                player.getInventory().setItem(1, ToolClass.play);
+                PlayerJoinEventListener.resetPlayer(player);
             }
         }
+    }
+
+    public static void displayTime(Player player, GamePhase gamePhase, int time) {
+
     }
 
 
@@ -470,7 +502,7 @@ public class GameLoop {
                     for (int dz = 0; dz < 7; dz++) {
                         Location locationDisplay = offset(DISPLAY_LOCATION, dx, dy, dz);
                         Block displayBlock = locationDisplay.getBlock();
-                        if (displayBlock.getType() == Material.AIR) continue;
+                        if (displayBlock.getType() == Material.AIR) continue;  //你猜猜多放方块给多少分？100分！那不就是了
 
                         Location worldLocation = new Location(OVERWORLD, x + dx, y + dy, z + dz);
                         Block worldBlock = worldLocation.getBlock();
@@ -479,6 +511,23 @@ public class GameLoop {
 
                     }
                 }
+            }
+        }
+        return true;
+    }
+
+    public static boolean isBlockSame(BlockState displayBlock, BlockState worldBlock) {
+        if(displayBlock.getType() != worldBlock.getType()){
+            return false;
+        }
+        if(displayBlock.getBlockData() instanceof Stairs){
+            if(!StairsVisualComparator.Compare(displayBlock.getBlockData(),worldBlock.getBlockData())){
+                return false;
+            }
+        }
+        else{
+            if(!worldBlock.getBlockData().matches(displayBlock.getBlockData())){
+                return false;
             }
         }
         return true;
@@ -599,7 +648,9 @@ public class GameLoop {
 
     public static Location BUILD_LOCATION = new Location(Bukkit.getWorld("world"), -3, -60, -3);
     public static Location DISPLAY_LOCATION = offset(BUILD_LOCATION, 0, 0, 20);
-    public static Location CREATE_LOCATION = offset(BUILD_LOCATION, 0, 0, -20);
+    public static Location CREATE_LOCATION = offset(BUILD_LOCATION, 0, 210, 0);
+    public static Location SPAWN_LOCATION = CREATE_LOCATION.clone();
+    public static Location TRAIN_LOCATION = offset(BUILD_LOCATION, 0, 160, 0);
     public static Location STRUCTURE_CACHE_LOCATION = offset(BUILD_LOCATION, 0, 260, 0); //200格
 
 

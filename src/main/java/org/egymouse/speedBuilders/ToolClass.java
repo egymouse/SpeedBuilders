@@ -25,6 +25,9 @@ public class ToolClass {
     public static int start_time = 30;
     public static Map<UUID,Integer> destroy_tick = new HashMap<>();
 
+    public static List<String> allStructureFileNames = BlockEdit.getAllStructureFileNames();
+    public static List<String> allStructureBuildNames = BlockEdit.getAllStructureBuildNames();
+
     public static void Init(){
         ItemMeta meta = create.getItemMeta();
         assert meta != null;
@@ -53,6 +56,8 @@ public class ToolClass {
         meta1.setLore(List.of(ChatColor.GREEN + "右键"));
         start.setItemMeta(meta1);
         setPluginItem(start);
+
+
 
     }
 

@@ -12,9 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.inventory.ItemStack;
-import org.egymouse.speedBuilders.GameLoop;
-import org.egymouse.speedBuilders.PlayerData;
-import org.egymouse.speedBuilders.ToolClass;
+import org.egymouse.speedBuilders.*;
 
 import java.util.UUID;
 
@@ -110,16 +108,36 @@ public class BlockDamageListener implements Listener {
 //        event.getBlock().setType(Material.AIR);
     }
 
-    public static boolean isInBuildArea(Player player, Location location) {
+    public static boolean isInBuildArea(Player player, Location location) {  //todo 改成返回3个bool值，一个是是否可以破坏，一个是破坏是否会掉落，一个是是否可以放置
         UUID uuid = player.getUniqueId();
         PlayerData playerData = GameLoop.player_data.get(uuid);
-        if (playerData == null) return false;
-        int offset = playerData.getOffset();
-        location = GameLoop.offset(location, -offset);  //反过来在指定位置 左加右减
+        TrainPlayerData trainPlayerData = TrainManager.player_trainData.get(uuid);
+        int offset;
+        Location arenaLocation;
+        if (playerData != null) {
+            offset = playerData.getOffset();
+            arenaLocation = GameLoop.BUILD_LOCATION;
+        }
+        else if (trainPlayerData != null) {
+            offset = trainPlayerData.getOffset();
+            arenaLocation = GameLoop.TRAIN_LOCATION;
+        }
+        else {
+            return false;
+        }
+
+        arenaLocation = GameLoop.offset(arenaLocation, offset);  //反过来在指定位置 左加右减
+        int minX = arenaLocation.getBlockX();
+        int minY = arenaLocation.getBlockY();
+        int minZ = arenaLocation.getBlockZ();
+        int maxX = minX + 6;
+        int maxY = minY + 6;
+        int maxZ = minZ + 6;
+
         int x = location.getBlockX();
         int y = location.getBlockY();
         int z = location.getBlockZ();
-        if (x >= -3 && x <= 3 && y >= -60 && y <= -54 && z >= -3 && z <= 3) return true;
+        if (x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ) return true;
         return false;
     }
 }

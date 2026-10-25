@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.egymouse.speedBuilders.GameLoop;
 import org.egymouse.speedBuilders.SpeedBuilders;
 import org.egymouse.speedBuilders.ToolClass;
+import org.egymouse.speedBuilders.TrainManager;
 
 import java.util.UUID;
 
@@ -87,12 +88,13 @@ public class PlayerInteractEventListener implements Listener {
         Block block = event.getClickedBlock();
         Material type = block.getType();
 
+        boolean doDrop = true;
+
         // 1. 仅对生存模式玩家生效
         if (player.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
-
-        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+        if (ToolClass.destroy_tick.containsKey(uuid)) {
             event.setCancelled(true);
             return;
         }
@@ -100,19 +102,31 @@ public class PlayerInteractEventListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        else if (ToolClass.destroy_tick.containsKey(uuid)) {
+        else if (GameLoop.player_data.containsKey(uuid)) {
+            if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+                event.setCancelled(true);
+                return;
+            }
+            else if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {
+                doDrop = false;
+            }
+        }
+        else if (TrainManager.player_trainData.containsKey(uuid)) {
+            if (TrainManager.player_trainData.get(uuid).currentPhase == GameLoop.GamePhase.DISPLAY) {
+                doDrop = false;
+            }
+        }
+        else {
             event.setCancelled(true);
             return;
         }
 
 
+
         int dropAmount = 1;
-        boolean doDrop = true;
-        BlockData blockData = block.getBlockData();
-        if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {  //todo 增加监听物品产生（最好是监听依附物掉落）如果不是build就取消
-            doDrop = false;
-        }
-        else if (blockData instanceof Slab) {
+
+        BlockData blockData = block.getBlockData();  //todo 增加监听物品产生（最好是监听依附物掉落）如果不是build就取消
+        if (blockData instanceof Slab) {
             Slab slab = (Slab) blockData;
             if (slab.getType() == Slab.Type.DOUBLE) {
                 dropAmount = 2;

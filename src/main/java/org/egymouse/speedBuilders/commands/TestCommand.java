@@ -25,6 +25,8 @@ public class TestCommand implements CommandExecutor {
 //        BlockEdit.pasteSchematic(GameLoop.BUILD_LOCATION, GameLoop.currentBuildFile);
 //        return true;
 
+        if (true) return true;
+
         Structure structure = Bukkit.getStructureManager().createStructure();
 
         structure.fill(new Location(GameLoop.OVERWORLD, -7, -61, -7), new BlockVector(15,1,15),false);

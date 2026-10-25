@@ -48,6 +48,9 @@ public class EndCommand implements CommandExecutor {
                 return false;
             }
             sender.sendMessage(ChatColor.YELLOW + "保存了 " + name);
+
+            ToolClass.allStructureFileNames = BlockEdit.getAllStructureFileNames();  //todo 结合到refresh里面
+            ToolClass.allStructureBuildNames = BlockEdit.getAllStructureBuildNames();
         }else{
             sender.sendMessage(ChatColor.RED + name  + " 已存在，换一个名字试试吧");
         }

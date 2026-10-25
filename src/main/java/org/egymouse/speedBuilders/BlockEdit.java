@@ -12,6 +12,7 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
+import org.ajls.lib.utils.ConfigU;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.structure.Structure;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +30,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -66,6 +69,39 @@ public class BlockEdit {
             e.printStackTrace();
         }
         return all_structures;
+    }
+
+    @NotNull
+    public static List<String> getAllStructureFileNames() {
+
+
+        List<File> files = getAllStructureFiles();
+        List<String> fileNames = new ArrayList<>();
+        for(File file : files){
+            fileNames.add(file.getName());
+        }
+        return fileNames;
+
+//        Path dir = SpeedBuilders.getPlugin().getDataFolder().toPath()
+//                .resolve(BUILDINGS_PATH);
+//        String[] names = dir.toFile().list();   // 返回文件名数组，可能为 null
+//
+//        if (names != null) {
+//            List<String> fileNames = new ArrayList<>(Arrays.asList(names));
+//            System.out.println(fileNames);
+//            return fileNames;
+//        }
+//        return new ArrayList<>();
+    }
+
+    public static List<String> getAllStructureBuildNames() {
+        List<String> buildNames = new ArrayList<>();
+        List<String> fileNames = getAllStructureFileNames();
+        for (String fileName : fileNames) {
+            String buildName = ConfigU.getParentPath(fileName);
+            buildNames.add(buildName);
+        }
+        return buildNames;
     }
 
     public static String BUILDINGS_PATH = "buildings";
