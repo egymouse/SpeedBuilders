@@ -28,7 +28,6 @@ public class GameLoop {
     public static int totalTime;
     public static GamePhase currentPhase = GamePhase.JUDGE;
     public static Set<File> leftStructureFile = null;
-    public static Set<File> leftLLBStructureFile = null;
     public static HashMap<UUID, PlayerData> player_data = new HashMap<>();
     public static int DEFAULT_HEALTH = 3;
     public static int STEP = 20;
@@ -46,8 +45,7 @@ public class GameLoop {
 
     public static void start() {
         ToolClass.playing = true;
-        leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(false));
-        leftLLBStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(true));
+        leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles());
         currentRound = 0;
         for (int i = 0; i < ToolClass.wait_player.size(); i++) {
 //            BlockEdit.pasteSchematic(offset(BUILD_LOCATION, i), arenaString);
@@ -128,7 +126,7 @@ public class GameLoop {
                         timeForBuilding -= 40;
                     }
                     generateNewBuild();
-                    BlockEdit.pasteBuildStructure(DISPLAY_LOCATION, currentBuildStructure, currentIsLLB);
+                    BlockEdit.pasteBuildStructure(DISPLAY_LOCATION, currentBuildStructure);
                     totalBlockCount = 0;
                     Inventory inventory = Bukkit.createInventory(null, 36);
                     int x = DISPLAY_LOCATION.getBlockX();
@@ -170,15 +168,19 @@ public class GameLoop {
                     for (PlayerData playerData : player_data.values()) {
                         playerData.setAllCorrect(false);
 
-
                         int offset = playerData.getOffset();
                         UUID uuid = playerData.getUuid();
                         Player player = Bukkit.getPlayer(uuid);
                         if (player == null) continue;
+
+
                         Location location = offset(BUILD_LOCATION, offset);
                         player.teleport(toTeleportLocation(offset(location, 0, 0, -1)));
                         player.setGameMode(GameMode.SURVIVAL);
-                        BlockEdit.pasteBuildStructure(location, currentBuildStructure, currentIsLLB);
+
+//                        displayStructure(playerData);
+
+                        BlockEdit.pasteBuildStructure(location, currentBuildStructure);
                         Inventory playerInventory = player.getInventory();
                         for (int i = 0; i <36; i++) {
                             ItemStack itemStack = inventory.getItem(i);
@@ -406,6 +408,13 @@ public class GameLoop {
 
     }
 
+//    public static void displayStructure(PlayerData playerData) {
+//        int offset = playerData.getOffset();
+//        UUID uuid = playerData.getUuid();
+//        Location location = offset(BUILD_LOCATION, offset);
+//        BlockEdit.pasteBuildStructure(location, currentBuildStructure, currentIsLLB);
+//    }
+
     public static void fillAir(Location buildLocation) {
         {
             int x = buildLocation.getBlockX();
@@ -558,32 +567,22 @@ public class GameLoop {
 
     public static File currentBuildFile;
     public static Structure currentBuildStructure;
-    public static boolean currentIsLLB;
     public static String currentBuildFileName;
     public static String currentBuildName;
 
     public static void generateNewBuild() {
-        if (leftStructureFile.isEmpty() && leftLLBStructureFile.isEmpty()) {
-            leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(false));
-            leftLLBStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles(true));
+        if (leftStructureFile.isEmpty()) {
+            leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles());
         }
 
 
         List<File> leftStructureFileList = new ArrayList<File>(leftStructureFile);
-        List<File> leftLLBStructureFileList = new ArrayList<File>(leftLLBStructureFile);
         File file;
-        int random = RandomUtils.random(0, leftLLBStructureFileList.size() + leftStructureFileList.size() - 1);
-        if (random >= leftStructureFileList.size()) {
-            random -= leftStructureFileList.size();
-            currentIsLLB = true;
-            file = leftLLBStructureFileList.get(random);
-            leftLLBStructureFile.remove(file);
-        }
-        else {
-            currentIsLLB = false;
-            file = leftStructureFileList.get(random);
-            leftStructureFile.remove(file);
-        }
+        int random = RandomUtils.random(0,  leftStructureFileList.size() - 1);
+
+        file = leftStructureFileList.get(random);
+        leftStructureFile.remove(file);
+
         currentBuildFile = file;
         currentBuildFileName = file.getName();
         currentBuildName = ConfigU.getParentPath(file.getName());
