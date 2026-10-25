@@ -196,7 +196,9 @@ public class GameLoop {
 
                 }
                 else if (currentPhase == GamePhase.BUILD) {
-                    displayFill(Material.BEDROCK);
+//                    displayFill(Material.BEDROCK);
+
+                    fillAir(DISPLAY_LOCATION);
                     for (PlayerData playerData : player_data.values()) {
                         int offset = playerData.getOffset();
                         Location buildLocation = offset(BUILD_LOCATION, offset);
@@ -208,6 +210,8 @@ public class GameLoop {
                     }
                 }
                 else if (currentPhase == GamePhase.JUDGE) {
+                    BlockEdit.pasteBuildStructure(DISPLAY_LOCATION, currentBuildStructure);
+
                     for (PlayerData playerData : player_data.values()) {
                         int offset = playerData.getOffset();
                         Location buildLocation = offset(BUILD_LOCATION, offset);
@@ -247,8 +251,7 @@ public class GameLoop {
                         }
 
                     }
-                    displayFill(Material.AIR);
-//                    BukkitScheduler scheduler = SpeedBuilders.getPlugin().getServer().getScheduler();
+//                    displayFill(Material.AIR);
 
                     scheduler.runTaskLater(SpeedBuilders.getPlugin(), () -> {
                         List<PlayerData> playerDataList = new ArrayList<PlayerData>(player_data.values());  //修复了内存引用直接把Playerdata删除的Bug
@@ -372,7 +375,9 @@ public class GameLoop {
                     PlayerData slowestData = null;
                     for (PlayerData playerData : player_data.values()) {
                         if (playerData.isAllCorrect()) continue;
-                        if (allCorrect(playerData)) {
+                        int offset = playerData.getOffset();
+                        Location buildLocation = offset(BUILD_LOCATION, offset);
+                        if (allCorrect(buildLocation, currentBuildStructure)) {
                             playerData.setAllCorrect(true);
                             playerData.setCompletionTicks(totalTime - timeLeft);
                             UUID uuid = playerData.getUuid();
@@ -488,6 +493,24 @@ public class GameLoop {
     }
 
 
+    public static boolean allCorrect(Location buildLocation, Structure structure) {
+        List<BlockState> blockStates = structure.getPalettes().getFirst().getBlocks();
+
+        for (BlockState blockState : blockStates) {
+            if (blockState.getY() == 0) continue;
+            if (blockState.getType() == Material.AIR) continue;  //你猜猜多放方块给多少分？100分！那不就是了
+            Location location = blockState.getLocation();
+            location.setWorld(GameLoop.OVERWORLD);
+            location.add(0, -1, 0);
+            location.add(buildLocation);
+
+            Block worldBlock = location.getBlock();
+            if (!GameLoop.isBlockSame(blockState, worldBlock.getState())) {
+                return false;
+            }
+        }
+        return true;
+    }
     public static boolean allCorrect(PlayerData playerData) {
         int offset = playerData.getOffset();
         Location buildLocation = offset(BUILD_LOCATION, offset);

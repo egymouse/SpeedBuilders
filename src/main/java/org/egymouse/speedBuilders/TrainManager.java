@@ -203,27 +203,10 @@ public class TrainManager {
 
                 int offset = trainPlayerData.getOffset();
                 Location buildLocation = GameLoop.offset(GameLoop.TRAIN_LOCATION, offset);
-                boolean allCorrect = true;
-                {
 
-                    Structure structure = trainPlayerData.getCurrentStructure();
+                Structure structure = trainPlayerData.getCurrentStructure();
+                boolean allCorrect = GameLoop.allCorrect(buildLocation, structure);
 
-                    List<BlockState> blockStates = structure.getPalettes().getFirst().getBlocks();
-
-                    for (BlockState blockState : blockStates) {
-                        if (blockState.getY() == 0) continue;
-                        Location location = blockState.getLocation();
-                        location.setWorld(GameLoop.OVERWORLD);
-                        location.add(0, -1, 0);
-                        location.add(buildLocation);
-
-                        Block worldBlock = location.getBlock();
-                        if (!GameLoop.isBlockSame(blockState, worldBlock.getState())) {
-                            allCorrect = false;
-                            break;
-                        }
-                    }
-                }
                 if (allCorrect) {
                     player.sendMessage(ChatColor.GREEN + "总方块数: " + ChatColor.YELLOW + trainPlayerData.getTotalBlockCount());
 
@@ -246,24 +229,12 @@ public class TrainManager {
 
 
                     trainEnd(player);
-//                    trainPlayerData.setTime(DISPLAY_TIME);
-//                    trainPlayerData.setCurrentPhase(GameLoop.GamePhase.DISPLAY);
-//                    trainPlayerData.getBukkitTask().cancel();
-//                    blockRightDuringPhase.clear();
-//
-//                    Inventory defaultInventory = trainPlayerData.getInventory();
-//                    Inventory playerInventory = player.getInventory();
-//                    playerInventory.clear();
-//                    for (int i = 0; i < defaultInventory.getSize(); i++) {
-//                        playerInventory.setItem(i, defaultInventory.getItem(i));
-//                    }
                 }
                 else {
                     int correctBlocks = 0;
                     if (timeLeft % 200 == 0) {
                         {
 
-                            Structure structure = trainPlayerData.getCurrentStructure();
 
                             List<BlockState> blockStates = structure.getPalettes().getFirst().getBlocks();
 
