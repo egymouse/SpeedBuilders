@@ -79,95 +79,102 @@ public class PlayerInteractEventListener implements Listener {
     }
 
 
-    @EventHandler
-    public void onPlayerLeftClick(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) return;
-        if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        Block block = event.getClickedBlock();
-        Material type = block.getType();
-
-        boolean doDrop = true;
-
-        // 1. 仅对生存模式玩家生效
-        if (player.getGameMode() != GameMode.SURVIVAL) {
-            return;
-        }
-        if (ToolClass.destroy_tick.containsKey(uuid)) {
-            event.setCancelled(true);
-            return;
-        }
-        else if (!BlockDamageListener.isInBuildArea(player, block.getLocation())) {
-            event.setCancelled(true);
-            return;
-        }
-        else if (GameLoop.player_data.containsKey(uuid)) {
-            if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
-                event.setCancelled(true);
-                return;
-            }
-            else if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {
-                doDrop = false;
-            }
-        }
-        else if (TrainManager.player_trainData.containsKey(uuid)) {
-            if (TrainManager.player_trainData.get(uuid).currentPhase == GameLoop.GamePhase.DISPLAY) {
-                doDrop = false;
-            }
-        }
-        else {
-            event.setCancelled(true);
-            return;
-        }
-
-
-
-        int dropAmount = 1;
-
-        BlockData blockData = block.getBlockData();  //todo 增加监听物品产生（最好是监听依附物掉落）如果不是build就取消
-        if (blockData instanceof Slab) {
-            Slab slab = (Slab) blockData;
-            if (slab.getType() == Slab.Type.DOUBLE) {
-                dropAmount = 2;
-            }
-        }
-        else if(blockData instanceof Bed b){
-            if(b.getPart() != Bed.Part.HEAD){
-                doDrop = false;
-            }
-        }else if(blockData instanceof Bisected b){
-            if(blockData instanceof Stairs || blockData instanceof TrapDoor || blockData instanceof SmallDripleaf){
-
-            }else{
-                if(b.getHalf() != Bisected.Half.BOTTOM){
-                    doDrop = false;
-                }
-            }
-
-        }
-
-        if (doDrop) {
-            // 关键：方块是什么就生成什么，完全不参考玩家手中物品
-            ItemStack drop = new ItemStack(type, dropAmount);
-
-            // 直接进背包；返回值是背包放不下的部分
-            var leftover = event.getPlayer().getInventory().addItem(drop);
-
-            // 背包满了就掉在方块原位置，避免吞物品
-            leftover.values().forEach(item ->
-                    block.getWorld().dropItemNaturally(block.getLocation(), item)
-            );
-        }
-
-
-
-        block.setType(Material.AIR);
-        ToolClass.destroy_tick.put(uuid,2);
-
-        event.setCancelled(true);
-
-    }
+//    @EventHandler
+//    public void onPlayerLeftClick(PlayerInteractEvent event) {
+//        if (event.getHand() != EquipmentSlot.HAND) return;
+//        if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
+//        Player player = event.getPlayer();
+//        UUID uuid = player.getUniqueId();
+//        Block block = event.getClickedBlock();
+//        Material type = block.getType();
+//
+//        boolean doDrop = true;
+//
+//        // 1. 仅对生存模式玩家生效
+//        if (player.getGameMode() != GameMode.SURVIVAL) {
+//            return;
+//        }
+//        if (ToolClass.destroy_tick.containsKey(uuid)) {
+//            event.setCancelled(true);
+//            return;
+//        }
+//        else if (!BlockDamageListener.isInBuildArea(player, block.getLocation())) {
+//            event.setCancelled(true);
+//            return;
+//        }
+//        else if (GameLoop.player_data.containsKey(uuid)) {
+//            if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+//                event.setCancelled(true);
+//                return;
+//            }
+//            else if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {
+//                if (GameLoop.allowBreak) {
+//                    doDrop = false;
+//                }
+//                else {
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//
+//            }
+//        }
+//        else if (TrainManager.player_trainData.containsKey(uuid)) {
+//            if (TrainManager.player_trainData.get(uuid).currentPhase == GameLoop.GamePhase.DISPLAY) {
+//                doDrop = false;
+//            }
+//        }
+//        else {
+//            event.setCancelled(true);
+//            return;
+//        }
+//
+//
+//
+//        int dropAmount = 1;
+//
+//        BlockData blockData = block.getBlockData();  //todo 增加监听物品产生（最好是监听依附物掉落）如果不是build就取消
+//        if (blockData instanceof Slab) {
+//            Slab slab = (Slab) blockData;
+//            if (slab.getType() == Slab.Type.DOUBLE) {
+//                dropAmount = 2;
+//            }
+//        }
+//        else if(blockData instanceof Bed b){
+//            if(b.getPart() != Bed.Part.HEAD){
+//                doDrop = false;
+//            }
+//        }else if(blockData instanceof Bisected b){
+//            if(blockData instanceof Stairs || blockData instanceof TrapDoor || blockData instanceof SmallDripleaf){
+//
+//            }else{
+//                if(b.getHalf() != Bisected.Half.BOTTOM){
+//                    doDrop = false;
+//                }
+//            }
+//
+//        }
+//
+//        if (doDrop) {
+//            // 关键：方块是什么就生成什么，完全不参考玩家手中物品
+//            ItemStack drop = new ItemStack(type, dropAmount);
+//
+//            // 直接进背包；返回值是背包放不下的部分
+//            var leftover = event.getPlayer().getInventory().addItem(drop);
+//
+//            // 背包满了就掉在方块原位置，避免吞物品
+//            leftover.values().forEach(item ->
+//                    block.getWorld().dropItemNaturally(block.getLocation(), item)
+//            );
+//        }
+//
+//
+//
+//        block.setType(Material.AIR);
+//        ToolClass.destroy_tick.put(uuid,2);
+//
+//        event.setCancelled(true);
+//
+//    }
 
 
 }

@@ -20,46 +20,57 @@ public class BlockDamageListener implements Listener {
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
-//        if (true) return;
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        // 1. 从事件中获取方块
         Block block = event.getBlock();
         Material type = block.getType();
 
-
+        boolean doDrop = true;
 
         // 1. 仅对生存模式玩家生效
-        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+        if (player.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
-
-        if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+        if (ToolClass.destroy_tick.containsKey(uuid)) {
             event.setCancelled(true);
             return;
         }
-        else if (!isInBuildArea(event.getPlayer(), block.getLocation())) {
+        else if (!BlockDamageListener.isInBuildArea(player, block.getLocation())) {
             event.setCancelled(true);
             return;
         }
-        else if (ToolClass.destroy_tick.containsKey(uuid)) {
+        else if (GameLoop.player_data.containsKey(uuid)) {
+            if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
+                event.setCancelled(true);
+                return;
+            }
+            else if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {
+                if (GameLoop.allowBreak) {
+                    doDrop = false;
+                }
+                else {
+                    event.setCancelled(true);
+                    return;
+                }
+
+            }
+        }
+        else if (TrainManager.player_trainData.containsKey(uuid)) {
+            if (TrainManager.player_trainData.get(uuid).currentPhase == GameLoop.GamePhase.DISPLAY) {
+                doDrop = false;
+            }
+        }
+        else {
             event.setCancelled(true);
             return;
         }
-
-
-
-
 
 
 
         int dropAmount = 1;
-        boolean doDrop = true;
-        BlockData blockData = block.getBlockData();
-        if (GameLoop.currentPhase == GameLoop.GamePhase.DISPLAY) {  //todo 增加监听物品产生（最好是监听依附物掉落）如果不是build就取消
-            doDrop = false;
-        }
-        else if (blockData instanceof Slab) {
+
+        BlockData blockData = block.getBlockData();  //todo 增加监听物品产生（最好是监听依附物掉落）如果不是build就取消
+        if (blockData instanceof Slab) {
             Slab slab = (Slab) blockData;
             if (slab.getType() == Slab.Type.DOUBLE) {
                 dropAmount = 2;
@@ -95,17 +106,10 @@ public class BlockDamageListener implements Listener {
 
 
 
-        event.getBlock().setType(Material.AIR);
+        block.setType(Material.AIR);
         ToolClass.destroy_tick.put(uuid,2);
 
-
-
-        // 4. 核心：设置为瞬间破坏
-        event.setInstaBreak(true);  //todo 修复秒破无挖掘延迟的bug
         event.setCancelled(true);
-
-
-//        event.getBlock().setType(Material.AIR);
     }
 
     public static boolean isInBuildArea(Player player, Location location) {  //todo 改成返回3个bool值，一个是是否可以破坏，一个是破坏是否会掉落，一个是是否可以放置

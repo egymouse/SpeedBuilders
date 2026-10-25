@@ -42,6 +42,7 @@ public class GameLoop {
     public static boolean killAll = false;
     public static boolean slowestDies = false;
     public static boolean noPeeking = false;
+    public static boolean allowBreak = false;
     //todo 掉方块
 
 
@@ -87,7 +88,7 @@ public class GameLoop {
 
     public static BukkitTask gameLoopTask;
 
-    public static int DISPLAY_TIME = 100; //15*20 = 300
+    public static int DISPLAY_TIME = 300; //15*20 = 300
     public static int BUILD_TIME = 1200;
     public static int JUDGE_TIME = 100;
 
@@ -124,14 +125,17 @@ public class GameLoop {
                     currentPhaseOrdinal = 0;
                 }
                 currentPhase = GamePhase.values()[currentPhaseOrdinal];
-                Bukkit.broadcastMessage("时间到了，现在阶段" + currentPhase.name());
+//                Bukkit.broadcastMessage("时间到了，现在阶段" + currentPhase.name());
 
                 if (currentPhase == GamePhase.DISPLAY) {
+
                     currentRound ++;
                     if (currentRound != 1) {
                         timeForBuilding -= 40;
                     }
                     generateNewBuild();
+                    Bukkit.broadcastMessage(ChatColor.AQUA + "建筑名:" + currentBuildName);
+
                     BlockEdit.pasteBuildStructure(DISPLAY_LOCATION, currentBuildStructure);
                     totalBlockCount = 0;
                     Inventory inventory = Bukkit.createInventory(null, 36);
@@ -314,7 +318,8 @@ public class GameLoop {
                             if (lastPlayerData.getHealth() <= 0) {
                                 Bukkit.broadcastMessage(ChatColor.RED + lastPlayerData.getPlayerName() + "飘零了");
                                 player_data.remove(lastPlayerData.getUuid());
-                                Bukkit.broadcastMessage(player_data.size() + " remain");
+                                destroyPlatform(lastPlayerData.getBuildLocation());
+                                Bukkit.broadcastMessage(ChatColor.BLUE + "还剩" + player_data.size() + "名玩家");
                                 if (player_data.size() == 1) {
                                     for (UUID uuid : player_data.keySet()) {
                                         Player player = Bukkit.getPlayer(uuid);
@@ -635,6 +640,10 @@ public class GameLoop {
 
     public static Location toTeleportLocation(Location location) {
         return offset(location, 0.5, 0, 0.5);
+    }
+
+    public static Location toTeleportLocationAndPreventStruck(Location location) {
+        return offset(location, 0.5, 0, -0.5);
     }
 
     public static File currentBuildFile;

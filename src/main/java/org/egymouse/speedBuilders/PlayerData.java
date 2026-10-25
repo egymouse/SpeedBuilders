@@ -1,8 +1,15 @@
 package org.egymouse.speedBuilders;
 
+import org.bukkit.Location;
+
 import java.util.UUID;
 
 public class PlayerData {
+
+
+    public Location getBuildLocation() {
+        return GameLoop.offset(GameLoop.BUILD_LOCATION, offset);
+    }
     UUID uuid;
     int completionTicks = 0;
 

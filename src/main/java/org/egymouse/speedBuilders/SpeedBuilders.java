@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 import org.egymouse.speedBuilders.commands.*;
 import org.egymouse.speedBuilders.listeners.DoubleJumpListener;
 
@@ -71,7 +72,7 @@ public final class SpeedBuilders extends JavaPlugin {
         ToolClass.Init();
 
         BlockEdit.pasteArena(GameLoop.DISPLAY_LOCATION);
-        BlockEdit.pasteArena(GameLoop.CREATE_LOCATION);
+//        BlockEdit.pasteArena(GameLoop.CREATE_LOCATION);
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.runTaskTimer(this, () -> {
@@ -118,7 +119,7 @@ public final class SpeedBuilders extends JavaPlugin {
 
                 }
                 else {
-                    player.teleport(GameLoop.toTeleportLocation(playerBuildLocation));
+                    player.teleport(GameLoop.toTeleportLocation(GameLoop.offset(playerBuildLocation, 0, 0, -1)));
                 }
 
                 boolean onGround = DoubleJumpListener.isPlayerOnGroundRayTrace(player);  //站在栅栏上就爆炸了
@@ -127,25 +128,57 @@ public final class SpeedBuilders extends JavaPlugin {
                     // 着地时，重新允许飞行，并移出“空中”集合
                     player.setAllowFlight(true);
                 } else {
-                    // 离地时，标记为“空中”（代表已经消耗了一次原版跳跃）
-                    // 但只有在玩家确实起跳后才标记，避免边缘掉落误判
-                    if (player.getVelocity().getY() > -0.2) {
+//                    // 离地时，标记为“空中”（代表已经消耗了一次原版跳跃）
+//                    // 但只有在玩家确实起跳后才标记，避免边缘掉落误判
+//                    if (player.getVelocity().getY() > -0.2) {
+//
+//                    }
+//                    else {
+//                        player.setAllowFlight(false);
+//                    }
+                }
+                double yVel  =player.getVelocity().getY();
+                if (yVel == -0.0784000015258789) {
+                    player.setAllowFlight(true);
+                }
 
+
+                if(ToolClass.destroy_tick.containsKey(uuid)){
+                    if(ToolClass.destroy_tick.get(uuid)>=2){
+                        ToolClass.destroy_tick.put(uuid,ToolClass.destroy_tick.get(uuid)-1);
+                    }else{
+                        ToolClass.destroy_tick.remove(uuid);
                     }
-                    else {
-                        player.setAllowFlight(false);
-                    }
+
+//                    Bukkit.broadcastMessage(ToolClass.destroy_tick.get(uuid) + "");
+
                 }
             }
 
-            ToolClass.destroy_tick.entrySet().removeIf(entry -> {
-                int newVal = entry.getValue() - 1;
-                if (newVal <= 0) {
-                    return true;          // 返回 true → 移除
-                }
-                entry.setValue(newVal);
-                return false;
-            });
+//            for (Player player : Bukkit.getOnlinePlayers()) {
+//                UUID uuid = player.getUniqueId();
+//                if(ToolClass.destroy_tick.containsKey(uuid)){
+//                    if(ToolClass.destroy_tick.get(uuid)>=2){
+//                        ToolClass.destroy_tick.put(uuid,ToolClass.destroy_tick.get(uuid)-1);
+//                    }else{
+//                        ToolClass.destroy_tick.remove(uuid);
+//                    }
+//
+//                    Bukkit.broadcastMessage(ToolClass.destroy_tick.get(uuid) + "");
+//
+//                }
+//            }
+
+
+
+//            ToolClass.destroy_tick.entrySet().removeIf(entry -> {
+//                int newVal = entry.getValue() - 1;
+//                if (newVal <= 0) {
+//                    return true;          // 返回 true → 移除
+//                }
+//                entry.setValue(newVal);
+//                return false;
+//            });
         }, 1, 1);
 
 
@@ -188,5 +221,8 @@ public final class SpeedBuilders extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        for(Player p : Bukkit.getOnlinePlayers()){
+            p.kickPlayer(ChatColor.RED + "插件热重载，请重新进服");
+        }
     }
 }
