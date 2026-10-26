@@ -32,18 +32,15 @@ public class BlockDamageListener implements Listener {
             return;
         }
         if (ToolClass.destroy_tick.containsKey(uuid)) {
-            player.sendMessage("挖掘冷却");
             event.setCancelled(true);
             return;
         }
         else if (!BlockDamageListener.isInBuildArea(player, block.getLocation())) {
-            player.sendMessage("非挖掘区域");
             event.setCancelled(true);
             return;
         }
         else if (GameLoop.player_data.containsKey(uuid)) {
             if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
-                player.sendMessage("审判阶段");
                 event.setCancelled(true);
                 return;
             }
@@ -52,7 +49,6 @@ public class BlockDamageListener implements Listener {
                     doDrop = false;
                 }
                 else {
-                    player.sendMessage("观察阶段");
                     event.setCancelled(true);
                     return;
                 }
@@ -65,7 +61,6 @@ public class BlockDamageListener implements Listener {
             }
         }
         else {
-            player.sendMessage("没游玩");
             event.setCancelled(true);
             return;
         }

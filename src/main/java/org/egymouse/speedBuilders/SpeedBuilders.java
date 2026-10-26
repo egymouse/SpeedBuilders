@@ -78,7 +78,8 @@ public final class SpeedBuilders extends JavaPlugin {
         ToolClass.Init();
 
         BlockEdit.pasteArena(GameLoop.DISPLAY_LOCATION);
-//        BlockEdit.pasteArena(GameLoop.CREATE_LOCATION);
+        BlockEdit.pasteArena(GameLoop.CREATE_LOCATION);
+        BlockEdit.pasteArena(GameLoop.SPAWN_LOCATION);
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.runTaskTimer(this, () -> {
