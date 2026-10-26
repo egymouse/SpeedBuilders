@@ -84,7 +84,7 @@ public final class SpeedBuilders extends JavaPlugin {
         scheduler.runTaskTimer(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 UUID uuid = player.getUniqueId();
-                if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
+                if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) continue;
 
                 int offset;
                 Location location;
@@ -134,57 +134,33 @@ public final class SpeedBuilders extends JavaPlugin {
                     // 着地时，重新允许飞行，并移出“空中”集合
                     player.setAllowFlight(true);
                 } else {
-//                    // 离地时，标记为“空中”（代表已经消耗了一次原版跳跃）
-//                    // 但只有在玩家确实起跳后才标记，避免边缘掉落误判
-//                    if (player.getVelocity().getY() > -0.2) {
-//
-//                    }
-//                    else {
-//                        player.setAllowFlight(false);
-//                    }
-                }
-                double yVel  =player.getVelocity().getY();
-                if (yVel == -0.0784000015258789) {
-                    player.setAllowFlight(true);
-                }
+                    // 离地时，标记为“空中”（代表已经消耗了一次原版跳跃）
+                    // 但只有在玩家确实起跳后才标记，避免边缘掉落误判
+                    if (player.getVelocity().getY() > -0.2) {
 
-
-                if(ToolClass.destroy_tick.containsKey(uuid)){
-                    if(ToolClass.destroy_tick.get(uuid)>=2){
-                        ToolClass.destroy_tick.put(uuid,ToolClass.destroy_tick.get(uuid)-1);
-                    }else{
-                        ToolClass.destroy_tick.remove(uuid);
                     }
-
-//                    Bukkit.broadcastMessage(ToolClass.destroy_tick.get(uuid) + "");
-
+                    else {
+                        player.setAllowFlight(false);
+                    }
                 }
-            }
 
-//            for (Player player : Bukkit.getOnlinePlayers()) {
-//                UUID uuid = player.getUniqueId();
+
 //                if(ToolClass.destroy_tick.containsKey(uuid)){
 //                    if(ToolClass.destroy_tick.get(uuid)>=2){
 //                        ToolClass.destroy_tick.put(uuid,ToolClass.destroy_tick.get(uuid)-1);
 //                    }else{
 //                        ToolClass.destroy_tick.remove(uuid);
 //                    }
-//
-//                    Bukkit.broadcastMessage(ToolClass.destroy_tick.get(uuid) + "");
-//
 //                }
-//            }
-
-
-
-//            ToolClass.destroy_tick.entrySet().removeIf(entry -> {
-//                int newVal = entry.getValue() - 1;
-//                if (newVal <= 0) {
-//                    return true;          // 返回 true → 移除
-//                }
-//                entry.setValue(newVal);
-//                return false;
-//            });
+            }
+            ToolClass.destroy_tick.entrySet().removeIf(entry -> {
+                int newVal = entry.getValue() - 1;
+                if (newVal <= 0) {
+                    return true;          // 返回 true → 移除
+                }
+                entry.setValue(newVal);
+                return false;
+            });
         }, 1, 1);
 
 

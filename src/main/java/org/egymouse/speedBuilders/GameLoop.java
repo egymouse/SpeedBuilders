@@ -50,14 +50,9 @@ public class GameLoop {
         ToolClass.playing = true;
         leftStructureFile = new HashSet<>(BlockEdit.getAllStructureFiles());
         currentRound = 0;
+        currentPhase = GamePhase.JUDGE;
         for (int i = 0; i < ToolClass.wait_player.size(); i++) {
-//            BlockEdit.pasteSchematic(offset(BUILD_LOCATION, i), arenaString);
             BlockEdit.pasteArena(i);
-
-
-
-//            Structure l = Bukkit.getStructureManager().loadStructure(NamespacedKey.minecraft("labby"));
-//            l.place(new Location(Bukkit.getWorld("world"),30*i,200,0),false, StructureRotation.NONE, Mirror.NONE,0,1f,new Random());
         }
         int offset = 0;
         for (Player player: ToolClass.wait_player) {
@@ -482,6 +477,7 @@ public class GameLoop {
     }
 
     public static void end() {
+        currentPhase = GamePhase.JUDGE;
         gameLoopTask.cancel();
         ToolClass.playing = false;
         player_data.clear();
