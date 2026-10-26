@@ -89,7 +89,7 @@ public class GameLoop {
     public static BukkitTask gameLoopTask;
 
     public static int DISPLAY_TIME = 300; //15*20 = 300
-    public static int BUILD_TIME = 1200;
+    public static int BUILD_TIME = 12000;
     public static int JUDGE_TIME = 100;
 
     public static void gameLoop() {

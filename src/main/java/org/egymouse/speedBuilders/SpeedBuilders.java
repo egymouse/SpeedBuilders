@@ -63,11 +63,17 @@ public final class SpeedBuilders extends JavaPlugin {
         getCommand("train").setTabCompleter(new TrainCommandTabCompleter());
         getCommand("hub").setExecutor(new HubCommand());
         World world = Bukkit.getWorld("world");
-        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+//        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+//        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+//        world.setFullTime(1000);
+//        world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+//        world.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+
+        world.setGameRule(GameRules.ADVANCE_TIME, false);
+        world.setGameRule(GameRules.ADVANCE_WEATHER, false);
         world.setFullTime(1000);
-        world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
-        world.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+        world.setGameRule(GameRules.RANDOM_TICK_SPEED, 0);
+
 
         ToolClass.Init();
 

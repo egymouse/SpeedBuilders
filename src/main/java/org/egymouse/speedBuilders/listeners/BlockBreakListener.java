@@ -41,6 +41,7 @@ public class BlockBreakListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
+//        if (true) return;
         if (e.getPlayer().getGameMode() == GameMode.CREATIVE ) return;
 
         if (GameLoop.currentPhase == GameLoop.GamePhase.JUDGE) {
