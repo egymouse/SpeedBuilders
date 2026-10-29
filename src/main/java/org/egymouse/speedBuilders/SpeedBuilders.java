@@ -46,6 +46,7 @@ public final class SpeedBuilders extends JavaPlugin {
         // 增加玩家出界拉回
         // 显示完成百分比
         // 进入游戏和开始游戏添加音效
+        // 布吉岛display阶段禁止高跳
 
 
         //purpur 的todo 区分方块掉落和依附掉落，interact同时修改手中物品会触发两次 火把不掉落（physics event没有用)，挖掘延迟服务端控制实现（就算秒挖客户端也认为有延迟)

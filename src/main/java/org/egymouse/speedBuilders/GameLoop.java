@@ -180,21 +180,22 @@ public class GameLoop {
                         int offset = playerData.getOffset();
                         UUID uuid = playerData.getUuid();
                         Player player = Bukkit.getPlayer(uuid);
-                        if (player == null) continue;
-
-
                         Location location = offset(BUILD_LOCATION, offset);
-                        player.teleport(toTeleportLocation(offset(location, 0, 0, -1)));
-                        player.setGameMode(GameMode.SURVIVAL);
+                        if (player != null) {
+                            player.sendMessage(ChatColor.GRAY + "您的最佳记录: " + ChatColor.YELLOW + ConfigManager.getPersonalBestTime(uuid, currentBuildName)+"s");
+                            player.teleport(toTeleportLocation(offset(location, 0, 0, -1)));
+                            player.setGameMode(GameMode.SURVIVAL);
+                            Inventory playerInventory = player.getInventory();
+                            for (int i = 0; i <36; i++) {
+                                ItemStack itemStack = inventory.getItem(i);
+                                playerInventory.setItem(i, itemStack);
+                            }
+                        }
 
 //                        displayStructure(playerData);
 
                         BlockEdit.pasteBuildStructure(location, currentBuildStructure);
-                        Inventory playerInventory = player.getInventory();
-                        for (int i = 0; i <36; i++) {
-                            ItemStack itemStack = inventory.getItem(i);
-                            playerInventory.setItem(i, itemStack);
-                        }
+
                     }
 
                 }
