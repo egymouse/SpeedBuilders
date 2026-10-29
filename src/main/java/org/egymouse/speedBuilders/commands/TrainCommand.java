@@ -42,7 +42,17 @@ public class TrainCommand implements CommandExecutor {
             return true;
         }
 
-        String buildName = args[0];
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < args.length; i++){
+            stringBuilder.append(args[i]);
+            if (i != args.length-1){
+                stringBuilder.append(" ");
+            }
+        }
+        String buildName = stringBuilder.toString();
+
 
         File file = new File(SpeedBuilders.getPlugin().getDataFolder(), BlockEdit.BUILDINGS_PATH + "/" + buildName + ".nbt");
         if (!file.exists()) {

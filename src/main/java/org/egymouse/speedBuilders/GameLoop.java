@@ -9,10 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Bed;
-import org.bukkit.block.data.type.SmallDripleaf;
-import org.bukkit.block.data.type.Stairs;
-import org.bukkit.block.data.type.TrapDoor;
+import org.bukkit.block.data.type.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -67,6 +64,7 @@ public class GameLoop {
                                     offset(BUILD_LOCATION, offset), 0, 0, -1)));
             player.setGameMode(GameMode.SURVIVAL);
             Bukkit.broadcastMessage(player.getName() + "进入");
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 
             offset++;
         }
@@ -148,8 +146,14 @@ public class GameLoop {
                                 totalBlockCount++;
 
                                 BlockData blockData = block.getBlockData();
-
-                                if(blockData instanceof Bed bed){
+                                int dropAmount = 1;
+                                if (blockData instanceof Slab) {
+                                    Slab slab = (Slab) blockData;
+                                    if (slab.getType() == Slab.Type.DOUBLE) {
+                                        dropAmount = 2;
+                                    }
+                                }
+                                else if(blockData instanceof Bed bed){
                                     if(bed.getPart() != Bed.Part.HEAD){
                                         continue;
                                     }
@@ -162,7 +166,7 @@ public class GameLoop {
                                     }
                                 }
 
-                                ItemStack itemStack = new ItemStack(material);
+                                ItemStack itemStack = new ItemStack(material, dropAmount);
                                 inventory.addItem(itemStack);
 
                             }
@@ -195,6 +199,7 @@ public class GameLoop {
 
                 }
                 else if (currentPhase == GamePhase.BUILD) {
+
 //                    displayFill(Material.BEDROCK);
 
                     fillAir(DISPLAY_LOCATION);
@@ -204,6 +209,11 @@ public class GameLoop {
                         fillAir(buildLocation);
                         if (noPeeking) {
                             playerFill(buildLocation, Material.BEDROCK);
+                        }
+
+                        Player player = Bukkit.getPlayer(playerData.getUuid());
+                        if (player != null) {
+                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                         }
 
                     }
@@ -382,18 +392,23 @@ public class GameLoop {
                             playerData.setCompletionTicks(totalTime - timeLeft);
                             UUID uuid = playerData.getUuid();
                             Player player = Bukkit.getPlayer(uuid);
-                            Bukkit.broadcastMessage(ChatColor.GREEN + playerData.getPlayerName() + ChatColor.WHITE + "在" + ChatColor.YELLOW + (float) playerData.getCompletionTicks() / 20 + "s" + ChatColor.WHITE + "内完成");
-                            boolean isNewPB = ConfigManager.tryUpdatePersonalBestTime(playerData.getUuid(), currentBuildName, playerData.getCompletionTicks());
-                            if (isNewPB) {
-                                player.sendMessage(ChatColor.LIGHT_PURPLE + "新的记录!");
-                            }
-                            else {
-                                player.sendMessage(ChatColor.DARK_GRAY + "您的最佳记录:" + ChatColor.GRAY + (float) ConfigManager.getPersonalBestTime(uuid, currentBuildName) / 20 + "s");
-                            }
-
                             if (player != null) {
                                 player.setGameMode(GameMode.SPECTATOR);
+
+                                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                                player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_TWINKLE_FAR, 1, 1);
+                                Bukkit.broadcastMessage(ChatColor.GREEN + playerData.getPlayerName() + ChatColor.WHITE + "在" + ChatColor.YELLOW + (float) playerData.getCompletionTicks() / 20 + "s" + ChatColor.WHITE + "内完成");
+                                boolean isNewPB = ConfigManager.tryUpdatePersonalBestTime(playerData.getUuid(), currentBuildName, playerData.getCompletionTicks());
+                                if (isNewPB) {
+                                    player.sendMessage(ChatColor.LIGHT_PURPLE + "新的记录!");
+                                }
+                                else {
+                                    player.sendMessage(ChatColor.DARK_GRAY + "您的最佳记录:" + ChatColor.GRAY + (float) ConfigManager.getPersonalBestTime(uuid, currentBuildName) / 20 + "s");
+                                }
                             }
+
+
+
                         }
                         else {
                             existSomeoneUnfinished = true;

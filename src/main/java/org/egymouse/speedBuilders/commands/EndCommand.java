@@ -30,7 +30,16 @@ public class EndCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.RED + "/end 题目名字");
             return true;
         }
-        String name = args[0];
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < args.length; i++){
+            stringBuilder.append(args[i]);
+            if (i != args.length-1){
+                stringBuilder.append(" ");
+            }
+        }
+        String name = stringBuilder.toString();
 
         Structure structure = Bukkit.getStructureManager().createStructure();
 

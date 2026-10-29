@@ -15,6 +15,7 @@ commands:
     description: merge
   train:
   hub:
+  load:
 
 depend: [ WorldEdit ]
 

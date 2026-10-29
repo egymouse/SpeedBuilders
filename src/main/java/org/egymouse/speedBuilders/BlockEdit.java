@@ -154,6 +154,21 @@ public class BlockEdit {
         pasteStructure(GameLoop.offset(location, 0, -1, 0), structure);
     }
 
+    public static void fillArenaGround(Location location) {
+        noBlockPhysics = true;
+        int x = location.getBlockX() -4;
+        int z = location.getBlockZ()-4;
+        int y = location.getBlockY()-2;
+        for (int dx = 0; dx < 15; dx ++) {
+            for (int dz = 0; dz < 15; dz++) {
+                Location locationNew = new Location(GameLoop.OVERWORLD, x+dx, y, z+dz);
+                Block newBlock = locationNew.getBlock();
+                newBlock.setType(Material.QUARTZ_BLOCK, false);  //llb同款
+            }
+        }
+        noBlockPhysics = false;
+    }
+
     public static void generateDefaultGround(Location location) {
         noBlockPhysics = true;
         int x = location.getBlockX();
@@ -163,7 +178,7 @@ public class BlockEdit {
             for (int dz = 0; dz < 7; dz++) {
                 Location locationNew = new Location(GameLoop.OVERWORLD, x+dx, y, z+dz);
                 Block newBlock = locationNew.getBlock();
-                newBlock.setType(Material.WHITE_CONCRETE);  //llb同款
+                newBlock.setType(Material.WHITE_CONCRETE, false);  //llb同款
             }
         }
         noBlockPhysics = false;
@@ -181,6 +196,7 @@ public class BlockEdit {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        fillArenaGround(location);
 
         pasteBuildStructure(GameLoop.offset(location, -4, 0, -4), structure);
     }

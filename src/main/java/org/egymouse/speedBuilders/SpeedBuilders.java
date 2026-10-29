@@ -44,6 +44,9 @@ public final class SpeedBuilders extends JavaPlugin {
         // 添加练习模式 自定义物品栏顺序 更好的出题（修改地板变方便那种）  记录玩家最优时间  大跳手感不好 修复有概率空建筑的bug 学习白桦木拱门快速建筑技巧 太卡手了
         // 虚空地图 玩家死亡平台小时 更好的出题 兼容llb 地板的nbt structure增加初始偏移量
         // 增加玩家出界拉回
+        // 显示完成百分比
+        // 进入游戏和开始游戏添加音效
+
 
         //purpur 的todo 区分方块掉落和依附掉落，interact同时修改手中物品会触发两次 火把不掉落（physics event没有用)，挖掘延迟服务端控制实现（就算秒挖客户端也认为有延迟)
 
@@ -62,6 +65,8 @@ public final class SpeedBuilders extends JavaPlugin {
         getCommand("train").setExecutor(new TrainCommand());
         getCommand("train").setTabCompleter(new TrainCommandTabCompleter());
         getCommand("hub").setExecutor(new HubCommand());
+        getCommand("load").setExecutor(new LoadCommand());
+        getCommand("load").setTabCompleter(new TrainCommandTabCompleter());
         World world = Bukkit.getWorld("world");
 //        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
 //        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
@@ -78,8 +83,8 @@ public final class SpeedBuilders extends JavaPlugin {
         ToolClass.Init();
 
         BlockEdit.pasteArena(GameLoop.DISPLAY_LOCATION);
-        BlockEdit.pasteArena(GameLoop.CREATE_LOCATION);
-        BlockEdit.pasteArena(GameLoop.SPAWN_LOCATION);
+//        BlockEdit.pasteArena(GameLoop.CREATE_LOCATION);
+//        BlockEdit.pasteArena(GameLoop.SPAWN_LOCATION);
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.runTaskTimer(this, () -> {
@@ -205,7 +210,7 @@ public final class SpeedBuilders extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         for(Player p : Bukkit.getOnlinePlayers()){
-            p.kickPlayer(ChatColor.RED + "插件热重载，请重新进服");
+//            p.kickPlayer(ChatColor.RED + "插件热重载，请重新进服");
         }
     }
 }
