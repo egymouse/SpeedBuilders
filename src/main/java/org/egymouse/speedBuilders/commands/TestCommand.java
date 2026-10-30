@@ -29,8 +29,9 @@ public class TestCommand implements CommandExecutor {
 
         Structure structure = Bukkit.getStructureManager().createStructure();
 
-        structure.fill(new Location(GameLoop.OVERWORLD, -7, -61, -7), new BlockVector(15,1,15),false);
-        Path dir = Paths.get("plugins/buildings/" + "arena" + ".nbt");
+        structure.fill(new Location(GameLoop.OVERWORLD, 17, 146, -9), new BlockVector(17,4,17),false);
+//        structure.fill(new Location(GameLoop.OVERWORLD, -7, -61, -7), new BlockVector(15,1,15),false);
+        Path dir = Paths.get("plugins/buildings/" + "bjd_arena" + ".nbt");
         File file = dir.toFile();
         if(!file.exists()){
             try {

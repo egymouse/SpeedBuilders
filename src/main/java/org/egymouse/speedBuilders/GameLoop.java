@@ -468,6 +468,30 @@ public class GameLoop {
 
     public static void destroyPlatform(Location buildLocation) {
         {
+            int x = buildLocation.getBlockX() - 5;
+            int y = buildLocation.getBlockY() - 4;
+            int z = buildLocation.getBlockZ() - 5;
+            for (int dy = 0; dy < 11; dy ++) {
+                for (int dx = 0; dx < 17; dx ++) {
+                    for (int dz = 0; dz < 17; dz ++) {
+//                                        Location locationNew = new Location(OVERWORLD, x+dx, y+dy, z+dz);
+//                                        locationNew.getBlock().setType(Material.AIR, false);
+
+                        Block block = new Location(OVERWORLD, x + dx, y + dy, z + dz).getBlock();
+//                                        BlockState state = block.getState();
+//                                        state.setType(Material.AIR);
+//                                        // 第二个参数 false 表示不应用物理/方块更新
+//                                        state.update(true, false);
+//
+                        block.setBlockData(Bukkit.createBlockData(Material.AIR),false);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void destroyClassicPlatform(Location buildLocation) {
+        {
             int x = buildLocation.getBlockX() - 4;
             int y = buildLocation.getBlockY() - 1;
             int z = buildLocation.getBlockZ() - 4;

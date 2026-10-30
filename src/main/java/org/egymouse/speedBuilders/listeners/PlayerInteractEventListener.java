@@ -26,6 +26,7 @@ public class PlayerInteractEventListener implements Listener {
     @EventHandler
     public void run(PlayerInteractEvent e){
         Player player = e.getPlayer();
+        String playerName = player.getName();
         ItemStack itemStack = e.getItem();
          if((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) &&  (e.getHand() == EquipmentSlot.HAND)){
              if (itemStack == null) return;
@@ -41,6 +42,7 @@ public class PlayerInteractEventListener implements Listener {
                          ToolClass.wait_player.add(e.getPlayer());
                          e.getPlayer().getInventory().clear();
                          e.getPlayer().sendMessage(ChatColor.GREEN + "你进入了游玩队列");
+                         Bukkit.broadcastMessage(ChatColor.GREEN + playerName + " 进入了游玩队列");
                          Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
                          e.getPlayer().getInventory().setItem(1,ToolClass.cancel);
                          e.getPlayer().getInventory().setItem(0,ToolClass.start);
@@ -53,7 +55,8 @@ public class PlayerInteractEventListener implements Listener {
                      if(ToolClass.wait_player.contains(e.getPlayer())){
                          ToolClass.wait_player.remove(e.getPlayer());
                          e.getPlayer().getInventory().clear();
-                         e.getPlayer().sendMessage(ChatColor.GREEN + "你退出了游玩队列");
+                         e.getPlayer().sendMessage(ChatColor.RED + "你退出了游玩队列");
+                         Bukkit.broadcastMessage(ChatColor.RED + playerName + " 退出了游玩队列");
                          Bukkit.broadcastMessage("游玩队列人数" + ToolClass.wait_player.size());
                          e.getPlayer().getInventory().setItem(0,ToolClass.create);
                          e.getPlayer().getInventory().setItem(1,ToolClass.play);

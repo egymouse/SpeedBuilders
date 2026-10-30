@@ -50,6 +50,7 @@ public final class SpeedBuilders extends JavaPlugin {
 
 
         //purpur 的todo 区分方块掉落和依附掉落，interact同时修改手中物品会触发两次 火把不掉落（physics event没有用)，挖掘延迟服务端控制实现（就算秒挖客户端也认为有延迟)
+        //todo 外围改成灰色混凝土 或者改成布吉岛同款竞技场
 
 
         //规划：-60是大赛区， 200是缓存区， 150是出题区(也就是出生点)，100是练习区
@@ -84,8 +85,8 @@ public final class SpeedBuilders extends JavaPlugin {
         ToolClass.Init();
 
         BlockEdit.pasteArena(GameLoop.DISPLAY_LOCATION);
-//        BlockEdit.pasteArena(GameLoop.CREATE_LOCATION);
-//        BlockEdit.pasteArena(GameLoop.SPAWN_LOCATION);
+//        BlockEdit.pasteClassicArena(GameLoop.CREATE_LOCATION);
+//        BlockEdit.pasteClassicArena(GameLoop.SPAWN_LOCATION);
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.runTaskTimer(this, () -> {

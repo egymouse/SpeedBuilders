@@ -196,10 +196,27 @@ public class BlockEdit {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+//        fillArenaGround(location);
+//
+//        pasteBuildStructure(GameLoop.offset(location, -4, 0, -4), structure);
+
+        pasteStructure(GameLoop.offset(location, -5, -4, -5), structure);
+    }
+
+    public static void pasteClassicArena(Location location) {
+        File file = getStructureFile(COMMON_BUILDINGS + "/" + "arena_classic.nbt");
+        Structure structure;
+        try {
+            structure = Bukkit.getStructureManager().loadStructure(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         fillArenaGround(location);
 
         pasteBuildStructure(GameLoop.offset(location, -4, 0, -4), structure);
+
     }
+
 
     public static void pasteArena(int offset) {
         pasteArena(GameLoop.offset(GameLoop.BUILD_LOCATION, offset));
