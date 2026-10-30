@@ -306,8 +306,10 @@ public class GameLoop {
 
                             UUID uuid = playerData.getUuid();
                             Player player = Bukkit.getPlayer(uuid);
+                            int blockRight = playerData.getBlockRight();
+                            double completeness = (double) blockRight /totalBlockCount;
                             if (player != null) {
-                                Bukkit.broadcastMessage(ChatColor.GREEN + player.getName() + ":" + playerData.getBlockRight() + "对" + " 生命:" + playerData.getHealth());
+                                Bukkit.broadcastMessage(ChatColor.GREEN + player.getName() + ":" + playerData.getBlockRight() + "对" + ChatColor.AQUA +  " 完成度: " + completeness + " 生命:" + playerData.getHealth());
                             }
                         }
                         if (sortedPlayerDataList.isEmpty()) {

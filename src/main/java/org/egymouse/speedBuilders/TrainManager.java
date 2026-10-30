@@ -214,7 +214,8 @@ public class TrainManager {
                     List<Integer> blockRightDuringPhase = trainPlayerData.getBlockRightDuringPhase();
                     for (int i = 0; i < blockRightDuringPhase.size(); i++) {
                         int blockRight = blockRightDuringPhase.get(i);
-                        player.sendMessage(ChatColor.GREEN + String.valueOf((i+1)*10) + "s: " + ChatColor.YELLOW + blockRight + "对");
+                        double completeness = (double) blockRight /trainPlayerData.getTotalBlockCount();
+                        player.sendMessage(ChatColor.GREEN + String.valueOf((i+1)*10) + "s: " + ChatColor.YELLOW + blockRight + "对" + ChatColor.AQUA + " 完成度: " + completeness);
                     }
 
                     player.sendMessage(ChatColor.GREEN + trainPlayerData.getPlayerName() + ChatColor.WHITE + "在" + ChatColor.YELLOW + (float)timeLeft / 20 + "s" + ChatColor.WHITE + "内完成");
