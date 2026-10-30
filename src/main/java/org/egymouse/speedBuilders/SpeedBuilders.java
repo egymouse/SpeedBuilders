@@ -120,7 +120,7 @@ public final class SpeedBuilders extends JavaPlugin {
                 int minZ = playerBuildLocation.getBlockZ() - 4;
 
                 int maxX = minX + 15;
-                int maxY = minY + GameLoop.STEP;
+                int maxY = minY + 12;  //布吉岛从第一格跳到第8格，也就是跳7格，站5方块上（第6格）跳跳到第13格被拉回，所以最大y也就是12  //+GameLoop.STEP;
                 int maxZ = minZ + 15;
 
                 int x = playerBlockLocation.getBlockX();
@@ -132,7 +132,7 @@ public final class SpeedBuilders extends JavaPlugin {
 
                 }
                 else {
-                    player.teleport(GameLoop.toTeleportLocation(GameLoop.offset(playerBuildLocation, 0, 0, -1)));
+                    player.teleport(GameLoop.toInitialLocation(playerBuildLocation));
                 }
 
                 boolean onGround = DoubleJumpListener.isPlayerOnGroundRayTrace(player);  //站在栅栏上就爆炸了

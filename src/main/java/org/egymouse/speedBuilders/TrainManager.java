@@ -67,7 +67,7 @@ public class TrainManager {
 
             location = GameLoop.offset(GameLoop.TRAIN_LOCATION,  unusedOffset);
             BlockEdit.pasteArena(location);
-            player.teleport(location);
+            player.teleport(GameLoop.toInitialLocation(location));
         }
         player.getInventory().clear();
         player.setGameMode(GameMode.SURVIVAL);
@@ -111,6 +111,7 @@ public class TrainManager {
         trainPlayerData.setBuildName(buildName);
         player_trainData.put(uuid, trainPlayerData);
 
+        player.sendMessage(ChatColor.GRAY + "您的最佳记录: " + ChatColor.YELLOW + ConfigManager.getPersonalBestTime(uuid, buildName)+"s");
         player.sendMessage(ChatColor.YELLOW + "输入/train开始练习");
 
     }
@@ -130,7 +131,7 @@ public class TrainManager {
         PlayerJoinEventListener.resetPlayer(player);
     }
 
-    public static int DISPLAY_TIME = 60;
+    public static int DISPLAY_TIME = 1;  //60
 
     public static void startTrain(Player player) {
         UUID uuid = player.getUniqueId();
@@ -161,7 +162,7 @@ public class TrainManager {
             GameLoop.GamePhase currentPhase = trainPlayerData.getCurrentPhase();
             int timeLeft = trainPlayerData.getTime();
 
-            double remain = (double) timeLeft / 20.0;
+            double remain = (double) (timeLeft-1) / 20.0;//这里先显示再扣时间，主循环先扣再显示
 //                String timeStr = String.format(java.util.Locale.ROOT, "%.1f", remain);
             String timeStr = String.format(java.util.Locale.ROOT, "%05.2f", remain);
             String phaseString = "复原";

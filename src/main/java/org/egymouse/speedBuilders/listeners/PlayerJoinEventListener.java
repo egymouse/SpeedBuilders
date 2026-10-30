@@ -30,9 +30,7 @@ public class PlayerJoinEventListener implements Listener {
 
     public static void resetPlayer(Player player) {
         player.teleport(
-                GameLoop.toTeleportLocation(
-                        GameLoop.offset(
-                                GameLoop.SPAWN_LOCATION, 0, 0, -1)));
+                GameLoop.toInitialLocation(GameLoop.SPAWN_LOCATION));
         player.setGameMode(GameMode.SURVIVAL);
         player.getInventory().clear();
         player.getInventory().setItem(0, ToolClass.create);

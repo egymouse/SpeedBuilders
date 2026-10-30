@@ -40,6 +40,7 @@ public class GameLoop {
     public static boolean slowestDies = false;
     public static boolean noPeeking = false;
     public static boolean allowBreak = false;
+    public static boolean noCooldown = true;
     //todo 掉方块
 
 
@@ -58,10 +59,7 @@ public class GameLoop {
             playerData.setHealth(DEFAULT_HEALTH);
             playerData.setPlayerName(player.getName());
             player_data.put(player.getUniqueId(), playerData);
-            player.teleport(
-                    toTeleportLocation(
-                            offset(
-                                    offset(BUILD_LOCATION, offset), 0, 0, -1)));
+            player.teleport(toInitialLocation(offset(BUILD_LOCATION, offset)));
             player.setGameMode(GameMode.SURVIVAL);
             Bukkit.broadcastMessage(player.getName() + "进入");
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
@@ -652,6 +650,11 @@ public class GameLoop {
 
     public static Location toTeleportLocation(Location location) {
         return offset(location, 0.5, 0, 0.5);
+    }
+
+
+    public static Location toInitialLocation(Location location) {
+        return offset(location, 3.5, 0, -1.5);
     }
 
     public static Location toTeleportLocationAndPreventStruck(Location location) {

@@ -31,7 +31,7 @@ public class BlockDamageListener implements Listener {
         if (player.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
-        if (ToolClass.destroy_tick.containsKey(uuid)) {
+        if (ToolClass.destroy_tick.containsKey(uuid) && !GameLoop.noCooldown) {
             event.setCancelled(true);
             return;
         }
