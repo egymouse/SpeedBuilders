@@ -16,10 +16,10 @@ public class WitherSpawnListener implements Listener {
 
 
     public boolean isPreventSpawn(CreatureSpawnEvent.SpawnReason reason) {
-        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_WITHER) return false;
-        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_COPPERGOLEM) return false;
-        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_IRONGOLEM) return false;
-        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_SNOWMAN) return false;
-        return true;
+        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_WITHER) return true;
+        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_COPPERGOLEM) return true;
+        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_IRONGOLEM) return true;
+        if (reason == CreatureSpawnEvent.SpawnReason.BUILD_SNOWMAN) return true;
+        return false;
     }
 }
