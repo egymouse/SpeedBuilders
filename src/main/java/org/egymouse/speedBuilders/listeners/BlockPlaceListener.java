@@ -1,6 +1,7 @@
 package org.egymouse.speedBuilders.listeners;
 
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +17,11 @@ public class BlockPlaceListener implements Listener {
         // 1. 仅对生存模式玩家生效
         Player player = event.getPlayer();
         if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+            return;
+        }
+
+        if (event.getBlockReplacedState().getType() != Material.AIR) {
+            event.setCancelled(true);
             return;
         }
 
