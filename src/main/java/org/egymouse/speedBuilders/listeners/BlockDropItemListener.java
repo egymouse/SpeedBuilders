@@ -2,12 +2,14 @@ package org.egymouse.speedBuilders.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.ItemStack;
 import org.egymouse.speedBuilders.GameLoop;
 import org.egymouse.speedBuilders.TrainManager;
 
@@ -42,8 +44,20 @@ public class BlockDropItemListener implements Listener {
 
 
 
+
+
 //            Bukkit.broadcastMessage(items.getFirst().getItemStack().getType().name() + " debug_21");
             //todo 解决神秘方块掉落物品问题
+        }
+        else {
+            if (block.getType() == Material.VINE) {
+                event.getItems().add(
+                        event.getBlock().getWorld().dropItemNaturally(
+                                event.getBlock().getLocation(),
+                                new ItemStack(Material.VINE, 1)
+                        )
+                );
+            }
         }
 //        event.getItems().clear();
 

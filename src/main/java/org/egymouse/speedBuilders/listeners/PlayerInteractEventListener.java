@@ -7,6 +7,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -23,6 +24,15 @@ import org.egymouse.speedBuilders.TrainManager;
 import java.util.UUID;
 
 public class PlayerInteractEventListener implements Listener {
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) return;
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            event.setCancelled(true);
+            return;
+        }
+    }
     @EventHandler
     public void run(PlayerInteractEvent e){
         Player player = e.getPlayer();
