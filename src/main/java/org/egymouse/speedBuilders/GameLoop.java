@@ -180,7 +180,7 @@ public class GameLoop {
                         Player player = Bukkit.getPlayer(uuid);
                         Location location = offset(BUILD_LOCATION, offset);
                         if (player != null) {
-                            player.sendMessage(ChatColor.GRAY + "您的最佳记录: " + ChatColor.YELLOW + ConfigManager.getPersonalBestTime(uuid, currentBuildName)+"s");
+                            player.sendMessage(ChatColor.GRAY + "您的最佳记录: " + ChatColor.YELLOW + (double) ConfigManager.getPersonalBestTime(uuid, currentBuildName) / 20+"s");
                             player.teleport(toTeleportLocation(offset(location, 0, 0, -1)));
                             player.setGameMode(GameMode.SURVIVAL);
                             Inventory playerInventory = player.getInventory();

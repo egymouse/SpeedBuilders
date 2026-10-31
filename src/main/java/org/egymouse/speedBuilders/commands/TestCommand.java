@@ -1,5 +1,7 @@
 package org.egymouse.speedBuilders.commands;
 
+import org.ajls.lib.utils.ConfigU;
+import org.ajls.lib.utils.RandomUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -17,6 +19,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class TestCommand implements CommandExecutor {
     @Override
@@ -25,6 +30,35 @@ public class TestCommand implements CommandExecutor {
 //        BlockEdit.pasteSchematic(GameLoop.BUILD_LOCATION, GameLoop.currentBuildFile);
 //        return true;
 
+
+
+
+
+        List<File> leftStructureFileList = BlockEdit.getAllStructureFiles();
+        for (int i = 0 ; i < 11; i++) {
+            for (int j = 0; j < 11; j++) {
+                int index = i*11+j;
+                File file = leftStructureFileList.get(index);
+                Structure structure;
+                try {
+                    structure = Bukkit.getStructureManager().loadStructure(file);
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Location location = GameLoop.offset(new Location(GameLoop.OVERWORLD, 0, -60, 0), j*8, 0, i*8);
+                BlockEdit.fillSmallQuartzGround(location);
+                BlockEdit.pasteBuildStructure(location, structure);
+            }
+        }
+        return true;
+
+//        for (File file : leftStructureFileList) {
+//
+//        }
+
+
+        /*
         if (true) return true;
 
         Structure structure = Bukkit.getStructureManager().createStructure();
@@ -46,5 +80,7 @@ public class TestCommand implements CommandExecutor {
         }
 
         return true;
+
+         */
     }
 }

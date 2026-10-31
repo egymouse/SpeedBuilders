@@ -111,7 +111,7 @@ public class TrainManager {
         trainPlayerData.setBuildName(buildName);
         player_trainData.put(uuid, trainPlayerData);
 
-        player.sendMessage(ChatColor.GRAY + "您的最佳记录: " + ChatColor.YELLOW + ConfigManager.getPersonalBestTime(uuid, buildName)+"s");
+        player.sendMessage(ChatColor.GRAY + "您的最佳记录: " +  ChatColor.YELLOW + (double) ConfigManager.getPersonalBestTime(uuid, buildName)/20+"s");
         player.sendMessage(ChatColor.YELLOW + "输入/train开始练习");
 
     }
@@ -162,33 +162,11 @@ public class TrainManager {
             GameLoop.GamePhase currentPhase = trainPlayerData.getCurrentPhase();
             int timeLeft = trainPlayerData.getTime();
 
-            double remain = (double) (timeLeft-1) / 20.0;//这里先显示再扣时间，主循环先扣再显示
-//                String timeStr = String.format(java.util.Locale.ROOT, "%.1f", remain);
-            String timeStr = String.format(java.util.Locale.ROOT, "%05.2f", remain);
-            String phaseString = "复原";
-            if (currentPhase == GameLoop.GamePhase.DISPLAY) {
-                phaseString = "剩余观察";
-            }
-            if (currentPhase != GameLoop.GamePhase.JUDGE) {
-                player.spigot().sendMessage(
-                        ChatMessageType.ACTION_BAR,
-                        new TextComponent(ChatColor.GREEN + phaseString + "时间：" + ChatColor.YELLOW + timeStr)
-                );
-            }
-            if (timeLeft >= 0) {
-                player.setLevel(Math.ceilDiv(timeLeft, 20));
-                if (currentPhase == GameLoop.GamePhase.DISPLAY) {
-                    player.setExp((float) timeLeft / totalTime);
-                }
-                else {
-                    player.setExp(Math.min((float) timeLeft / realPlayerBestTime, 1));
-                }
-
-            }
-
             if (currentPhase == GameLoop.GamePhase.DISPLAY) {
 
                 timeLeft--;
+                displayTime(trainPlayerData, "剩余观察", timeLeft);
+
                 if (timeLeft <= 0) {
                     trainPlayerData.setCurrentPhase(GameLoop.GamePhase.BUILD);
                     trainPlayerData.setTime(timeLeft);
@@ -201,6 +179,7 @@ public class TrainManager {
             }
             else {
                 timeLeft++;
+                displayTime(trainPlayerData, "复原", timeLeft);
 
                 int offset = trainPlayerData.getOffset();
                 Location buildLocation = GameLoop.offset(GameLoop.TRAIN_LOCATION, offset);
@@ -264,6 +243,38 @@ public class TrainManager {
 //            player_trainData.put(uuid, trainPlayerData);
         }, 1, 1);
         finalTrainPlayerData.setBukkitTask(bukkitTask);
+    }
+
+    public static void displayTime(TrainPlayerData trainPlayerData, String phaseString, int timeLeft) {
+        UUID uuid = trainPlayerData.getUuid();
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {return;}
+        double remain = (double) (timeLeft) / 20.0;//这里先显示再扣时间，主循环先扣再显示
+//                String timeStr = String.format(java.util.Locale.ROOT, "%.1f", remain);
+        String timeStr = String.format(java.util.Locale.ROOT, "%05.2f", remain);
+        player.spigot().sendMessage(
+                ChatMessageType.ACTION_BAR,
+                new TextComponent(ChatColor.GREEN + phaseString + "时间：" + ChatColor.YELLOW + timeStr)
+        );
+
+
+        String buildName = trainPlayerData.getBuildName();
+        int playerBestTime = ConfigManager.getPersonalBestTime(uuid, buildName);
+        if (playerBestTime == 0) {
+            playerBestTime = GameLoop.BUILD_TIME;
+        }
+        int realPlayerBestTime = playerBestTime;
+        GameLoop.GamePhase currentPhase = trainPlayerData.getCurrentPhase();
+        if (timeLeft >= 0) {
+            player.setLevel(Math.ceilDiv(timeLeft, 20));
+            if (currentPhase == GameLoop.GamePhase.DISPLAY) {
+                player.setExp((float) timeLeft / DISPLAY_TIME);
+            }
+            else {
+                player.setExp(Math.min((float) timeLeft / realPlayerBestTime, 1));
+            }
+
+        }
     }
 
     public static void trainEnd(Player player) {

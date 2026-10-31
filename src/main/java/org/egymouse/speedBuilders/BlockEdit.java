@@ -169,6 +169,21 @@ public class BlockEdit {
         noBlockPhysics = false;
     }
 
+    public static void fillSmallQuartzGround(Location location) {
+        noBlockPhysics = true;
+        int x = location.getBlockX();
+        int z = location.getBlockZ();
+        int y = location.getBlockY()-2;
+        for (int dx = 0; dx < 7; dx ++) {
+            for (int dz = 0; dz < 7; dz++) {
+                Location locationNew = new Location(GameLoop.OVERWORLD, x+dx, y, z+dz);
+                Block newBlock = locationNew.getBlock();
+                newBlock.setType(Material.QUARTZ_BLOCK, false);  //llb同款
+            }
+        }
+        noBlockPhysics = false;
+    }
+
     public static void generateDefaultGround(Location location) {
         noBlockPhysics = true;
         int x = location.getBlockX();
