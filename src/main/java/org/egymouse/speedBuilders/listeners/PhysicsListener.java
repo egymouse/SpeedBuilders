@@ -1,12 +1,17 @@
 package org.egymouse.speedBuilders.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.inventory.ItemStack;
 import org.egymouse.speedBuilders.BlockEdit;
 
 public class PhysicsListener implements Listener {
@@ -53,6 +58,51 @@ public class PhysicsListener implements Listener {
             return true;
         }
         Bukkit.broadcastMessage(block.getType().name() + " false");
+        return false;
+    }
+
+
+    @EventHandler
+    public void onBlockPhysics2(BlockPhysicsEvent event) {
+        if (event.getBlock().getType() != Material.VINE) {
+            return;
+
+        }
+//        event.setCancelled(true);
+
+
+        dropVineWhenBroken(event.getBlock());
+    }
+
+    private void dropVineWhenBroken(Block block) {
+        if (block.getType() != Material.VINE) {
+            return;
+        }
+        if (hasVineSupport(block)) {
+            return;
+        }
+        World world = block.getWorld();
+        Location location = block.getLocation();
+        block.breakNaturally();
+        if (block.getType() == Material.VINE) {
+            block.setType(Material.AIR);
+        }
+        world.dropItemNaturally(location, new ItemStack(Material.VINE));
+    }
+
+    private boolean hasVineSupport(Block block) {
+        if (block.getType() != Material.VINE) {
+            return true;
+        }
+        MultipleFacing multipleFacing = (MultipleFacing) block.getBlockData();
+        BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP};
+        for (BlockFace face : faces) {
+            if (multipleFacing.hasFace(face)) {
+                if (block.getRelative(face).getType().isSolid()) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 }

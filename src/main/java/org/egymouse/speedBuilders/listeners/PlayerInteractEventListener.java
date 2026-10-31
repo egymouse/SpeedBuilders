@@ -6,6 +6,7 @@ import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -28,9 +29,17 @@ public class PlayerInteractEventListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.CREATIVE) return;
+        if (true) return;
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            event.setCancelled(true);
-            return;
+            // 如果玩家手中拿着方块，则允许放置，但禁止与目标方块交互
+             if (event.isBlockInHand()) { // isBlockInHand() 是判断是否在放置方块的便捷方法[reference:2]
+                event.setUseInteractedBlock(Event.Result.DENY); // 禁止交互（如开箱子、按按钮）
+                event.setUseItemInHand(Event.Result.ALLOW);   // 允许使用物品（即放置方块）
+            } else {
+                // 如果手中不是方块（如空手、工具、食物），则完全禁止交互
+                event.setUseInteractedBlock(Event.Result.DENY);
+                event.setUseItemInHand(Event.Result.DENY);
+            }
         }
     }
     @EventHandler
